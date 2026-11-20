@@ -1,0 +1,28 @@
+#!/bin/bash
+# Morfo Linux — monta o sistema dentro da imagem viva.
+# Roda no chroot do live-build, com internet.
+set -euo pipefail
+
+# 1. O Morfo inteiro, sem o Claude (que é baixado na máquina de quem instala).
+bash /opt/morfo/setup.sh --imagem grafite
+
+# 2. Na sessão viva, o greetd entra direto no usuário "morfo" (criado pelo
+#    live-config no boot) e abre a tela de boas-vindas. O pós-instalação
+#    devolve a configuração normal, com tela de login.
+cp /etc/greetd/config.toml /opt/morfo/greetd-instalado.toml
+cat > /etc/greetd/config.toml <<'TOML'
+[terminal]
+vt = 1
+
+[initial_session]
+command = "/usr/local/bin/morfo-sessao-viva"
+user = "morfo"
+
+[default_session]
+command = "cage -s -d -- python3 /usr/share/morfo/greeter/morfo-greeter.py"
+user = "_greetd"
+TOML
+
+# 3. Limpeza para a imagem ficar menor.
+apt-get clean
+rm -rf /var/lib/apt/lists/* /tmp/* /var/log/morfo-setup.log

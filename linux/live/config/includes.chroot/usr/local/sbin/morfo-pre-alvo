@@ -1,0 +1,28 @@
+#!/bin/bash
+# Morfo Linux — passo do instalador que roda no pendrive (fora do chroot),
+# com o sistema novo montado em $1. Leva para o disco o que só existe na
+# sessão viva: o tema escolhido, o DNS da conexão atual e, se faltar, o kernel.
+set -u
+ALVO="${1:?uso: morfo-pre-alvo <raiz do sistema novo>}"
+
+# Tema escolhido na tela de boas-vindas.
+mkdir -p "$ALVO/var/lib/morfo"
+if [ -f /var/lib/morfo/tema ]; then
+    cp /var/lib/morfo/tema "$ALVO/var/lib/morfo/tema"
+fi
+
+# DNS da conexão atual, para o pós-instalação conseguir baixar o Claude.
+if [ -e /etc/resolv.conf ]; then
+    rm -f "$ALVO/etc/resolv.conf"
+    cat /etc/resolv.conf > "$ALVO/etc/resolv.conf"
+fi
+
+# O kernel e o initrd costumam vir na imagem; se não vierem, copia do pendrive.
+if ! ls "$ALVO"/boot/vmlinuz-* >/dev/null 2>&1; then
+    for f in /run/live/medium/live/vmlinuz*; do
+        [ -f "$f" ] || continue
+        versao=$(ls "$ALVO/lib/modules" | head -1)
+        cp "$f" "$ALVO/boot/vmlinuz-$versao"
+    done
+fi
+exit 0

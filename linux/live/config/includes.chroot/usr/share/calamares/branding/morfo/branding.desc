@@ -1,0 +1,46 @@
+---
+componentName: morfo
+
+welcomeStyleCalamares: false
+welcomeExpandingLogo: false
+windowExpanding: fullscreen
+windowSize: 1024px,680px
+windowPlacement: center
+sidebar: widget
+navigation: widget
+
+strings:
+    productName:         Morfo Linux
+    shortProductName:    Morfo
+    version:             0.2
+    shortVersion:        0.2
+    versionedName:       Morfo Linux 0.2
+    shortVersionedName:  Morfo 0.2
+    bootloaderEntryName: Morfo
+    productUrl:          https://github.com/charlesmmorais/morfo
+    supportUrl:          https://github.com/charlesmmorais/morfo/issues
+    knownIssuesUrl:      https://github.com/charlesmmorais/morfo/issues
+    releaseNotesUrl:     https://github.com/charlesmmorais/morfo/releases
+
+images:
+    productLogo:    "logo.png"
+    productIcon:    "logo.png"
+    productWelcome: "welcome.png"
+
+slideshow: "show.qml"
+slideshowAPI: 2
+
+# Cores da barra lateral (Calamares 3.3 usa a primeira forma, versões
+# anteriores a segunda).
+style:
+    SidebarBackground:        "#101218"
+    SidebarText:              "#8C93A5"
+    SidebarTextCurrent:       "#E6E9F0"
+    SidebarBackgroundCurrent: "#1E2433"
+    sidebarBackground:        "#101218"
+    sidebarText:              "#8C93A5"
+    sidebarTextSelect:        "#E6E9F0"
+    sidebarSelect:            "#1E2433"
+
+uploadServer:
+    type: "none"

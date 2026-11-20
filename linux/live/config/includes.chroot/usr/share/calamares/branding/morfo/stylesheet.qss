@@ -1,0 +1,70 @@
+/* Morfo Linux — Calamares no tema Grafite. */
+
+QWidget {
+    font-family: "Inter", "Noto Sans", sans-serif;
+    font-size: 14px;
+    color: #E6E9F0;
+    background-color: #14171F;
+}
+
+#sidebarApp, #sidebarMenuApp {
+    background-color: #101218;
+}
+
+QLabel { background: transparent; }
+
+QPushButton {
+    min-height: 34px;
+    padding: 4px 18px;
+    border-radius: 10px;
+    border: 1px solid #2C3242;
+    background-color: #1B1F2A;
+    color: #E6E9F0;
+}
+QPushButton:hover { border-color: #4A6CF7; }
+QPushButton:default, #view-button-next, #view-button-install {
+    border: none;
+    color: #FFFFFF;
+    font-weight: 600;
+    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8FB8FF, stop:1 #4A6CF7);
+}
+QPushButton:disabled { color: #5B6273; border-color: #222734; background-color: #171A23; }
+
+QLineEdit, QComboBox, QListView, QTreeView, QTextEdit, QPlainTextEdit, QSpinBox {
+    background-color: #10131A;
+    border: 1px solid #2C3242;
+    border-radius: 8px;
+    padding: 6px;
+    selection-background-color: #4A6CF7;
+    selection-color: #FFFFFF;
+}
+QLineEdit:focus, QComboBox:focus { border-color: #4A6CF7; }
+
+QComboBox QAbstractItemView {
+    background-color: #181B24;
+    border: 1px solid #2C3242;
+    selection-background-color: #2A3350;
+}
+
+QListView::item, QTreeView::item { padding: 6px; border-radius: 6px; }
+QListView::item:selected, QTreeView::item:selected { background-color: #2A3350; color: #FFFFFF; }
+
+QRadioButton, QCheckBox { spacing: 10px; background: transparent; }
+
+QProgressBar {
+    min-height: 10px;
+    max-height: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #1E2433;
+    text-align: center;
+    color: transparent;
+}
+QProgressBar::chunk {
+    border-radius: 5px;
+    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #8FB8FF, stop:1 #4A6CF7);
+}
+
+QScrollBar:vertical { background: transparent; width: 10px; }
+QScrollBar::handle:vertical { background: #2C3242; border-radius: 5px; min-height: 30px; }
+QScrollBar::add-line, QScrollBar::sub-line { height: 0; }

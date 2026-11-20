@@ -1,0 +1,35 @@
+/* Morfo Linux — boas-vindas do pendrive. Complementa base.css e rede.css. */
+
+.titulo-grande {
+  font-size: 44px;
+  font-weight: 300;
+  letter-spacing: -1.5px;
+  color: @texto;
+}
+
+.cartoes {
+  margin-top: 34px;
+  margin-bottom: 18px;
+}
+
+.cartao-acao {
+  padding: 24px;
+}
+
+.secundario {
+  min-height: 44px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: @texto;
+  background: alpha(@campo, 0.85);
+  border: 1px solid alpha(@borda, 0.9);
+  box-shadow: none;
+}
+.secundario:hover { border-color: @destaque; }
+
+.pilula-texto {
+  color: @suave;
+  font-size: 13px;
+  padding: 6px 4px;
+}

@@ -1,0 +1,29 @@
+#!/bin/bash
+# Morfo Linux — instala (ou atualiza) o Claude Desktop pelo repositório
+# oficial da Anthropic. Usado pelo setup, pela sessão viva ("Experimentar")
+# e pelo pós-instalação. Precisa de internet.
+set -euo pipefail
+
+[ "$(id -u)" -eq 0 ] || { echo "Use: sudo morfo-instalar-claude" >&2; exit 1; }
+export DEBIAN_FRONTEND=noninteractive
+
+KEY=/usr/share/keyrings/claude-desktop-archive-keyring.asc
+FPR_ESPERADA=31DDDE24DDFAB679F42D7BD2BAA929FF1A7ECACE
+
+command -v curl >/dev/null && command -v gpg >/dev/null || apt-get install -y curl gnupg ca-certificates
+
+curl -fsSLo "$KEY.novo" https://downloads.claude.ai/claude-desktop/key.asc
+FPR=$(gpg --show-keys --with-colons "$KEY.novo" 2>/dev/null | awk -F: '/^fpr/ {print $10; exit}')
+if [ "$FPR" != "$FPR_ESPERADA" ]; then
+    rm -f "$KEY.novo"
+    echo "Chave da Anthropic com impressão digital inesperada ($FPR)." >&2
+    exit 1
+fi
+mv "$KEY.novo" "$KEY"
+echo "deb [arch=amd64,arm64 signed-by=$KEY] https://downloads.claude.ai/claude-desktop/apt/stable stable main" \
+    > /etc/apt/sources.list.d/claude-desktop.list
+
+apt-get update
+# Com os recomendados: QEMU, OVMF e virtiofsd, usados pelo Cowork.
+apt-get install -y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold claude-desktop
+echo "Claude Desktop instalado."

@@ -1,0 +1,48 @@
+#!/bin/bash
+# Morfo Linux — último passo do instalador, dentro do sistema novo.
+# Tira o que só serve ao pendrive, volta a tela de login normal, aplica o
+# tema e instala o Claude (agora, se houver internet; senão, quando houver).
+set -u
+exec >>/var/log/morfo-pos-instalacao.log 2>&1
+echo "== Morfo: pós-instalação $(date -Is)"
+export DEBIAN_FRONTEND=noninteractive
+
+TEMA=$(cat /var/lib/morfo/tema 2>/dev/null || echo grafite)
+case "$TEMA" in grafite|areia) ;; *) TEMA=grafite ;; esac
+
+# 1. O que só serve ao pendrive.
+apt-get purge -y live-boot live-boot-initramfs-tools live-config live-config-systemd \
+    live-tools calamares 2>/dev/null || true
+rm -rf /etc/calamares /usr/share/morfo/boasvindas /usr/local/bin/morfo-sessao-viva
+
+# 2. Tela de login normal (na sessão viva o greetd entrava direto).
+if [ -f /opt/morfo/greetd-instalado.toml ]; then
+    install -m 0644 /opt/morfo/greetd-instalado.toml /etc/greetd/config.toml
+fi
+GRUPO=$(id -gn _greetd 2>/dev/null || echo root)
+install -d -m 0775 -o root -g "$GRUPO" /var/lib/morfo
+echo "$TEMA" > /var/lib/morfo/tema
+chgrp "$GRUPO" /var/lib/morfo/tema && chmod 0664 /var/lib/morfo/tema
+
+# 3. Tema (GRUB, Plymouth e terminal).
+MORFO_FORCAR=1 /usr/local/sbin/morfo-tema "$TEMA" || true
+
+# 4. Claude Desktop.
+pendente=0
+if timeout 5 bash -c 'exec 3<>/dev/tcp/deb.debian.org/80' 2>/dev/null; then
+    /usr/local/sbin/morfo-instalar-claude || pendente=1
+else
+    pendente=1
+fi
+
+if [ "$pendente" = 1 ]; then
+    echo "Sem internet: o Claude será instalado quando houver conexão."
+    install -D -m 0755 /opt/morfo/offline/morfo-continuar /usr/local/sbin/morfo-continuar
+    install -D -m 0644 /opt/morfo/offline/morfo-continuar.service /etc/systemd/system/morfo-continuar.service
+    install -D -m 0755 /opt/morfo/offline/90-morfo-continuar /etc/NetworkManager/dispatcher.d/90-morfo-continuar
+    systemctl enable morfo-continuar.service || true
+    echo "$TEMA" > /var/lib/morfo/pendente
+fi
+
+echo "== Morfo: pós-instalação concluída"
+exit 0

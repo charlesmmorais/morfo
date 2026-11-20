@@ -4,6 +4,8 @@
 #
 # Num Debian já instalado:      sudo ./setup.sh [grafite|areia]
 # Pelo instalador (automático): setup.sh --instalador [grafite|areia]
+# Montando a ISO viva:          setup.sh --imagem [grafite|areia]
+#   (sem o Claude, sem GRUB; o Wi-Fi Broadcom entra sempre)
 #
 # O Claude Desktop NÃO vem embutido: é instalado do repositório oficial da
 # Anthropic, na sua máquina, como qualquer usuário faria.
@@ -12,12 +14,14 @@ set -euo pipefail
 
 AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 INSTALADOR=0
+IMAGEM=0
 TEMA=grafite
 for a in "$@"; do
     case "$a" in
         --instalador) INSTALADOR=1 ;;
+        --imagem) IMAGEM=1 ;;
         grafite|areia) TEMA="$a" ;;
-        *) echo "uso: $0 [--instalador] [grafite|areia]" >&2; exit 1 ;;
+        *) echo "uso: $0 [--instalador|--imagem] [grafite|areia]" >&2; exit 1 ;;
     esac
 done
 
@@ -43,7 +47,7 @@ if [ -d "$AQUI/temas" ]; then TEMAS_DIR="$AQUI/temas"; else TEMAS_DIR="$AQUI/bra
 # -----------------------------------------------------------------------------
 tem_internet() { timeout 5 bash -c 'exec 3<>/dev/tcp/deb.debian.org/80' 2>/dev/null; }
 KIT="$AQUI/offline/kit"
-if ! tem_internet; then
+if [ "$IMAGEM" = 0 ] && ! tem_internet; then
     [ -f "$KIT/Packages.gz" ] || die "sem internet. Conecte um cabo de rede (ou celular Android em ancoragem USB) e rode de novo."
     say "Sem internet: instalando o Wi-Fi a partir do pendrive"
     [ -f /etc/apt/sources.list ] && sed -i -E 's/^(deb cdrom:)/# \1/' /etc/apt/sources.list
@@ -126,7 +130,10 @@ say "2/9 Base: login, quiosque, rede, som, fontes, boot gráfico"
 # -----------------------------------------------------------------------------
 say "3/9 Wi-Fi Broadcom (Mac mini e outros Macs antigos)"
 # -----------------------------------------------------------------------------
-if command -v lspci >/dev/null || "${APT[@]}" pciutils >/dev/null; then
+if [ "$IMAGEM" = 1 ]; then
+    # Na ISO viva o driver vai sempre: ela precisa funcionar em qualquer Mac.
+    "${APT[@]}" linux-headers-amd64 broadcom-sta-dkms
+elif command -v lspci >/dev/null || "${APT[@]}" pciutils >/dev/null; then
     if lspci -nn | grep -qiE 'network controller.*broadcom'; then
         "${APT[@]}" linux-headers-amd64 broadcom-sta-dkms || \
             echo "Aviso: driver de Wi-Fi não instalado; use cabo e rode o setup de novo."
@@ -136,15 +143,12 @@ fi
 # -----------------------------------------------------------------------------
 say "4/9 Claude Desktop, do repositório oficial da Anthropic"
 # -----------------------------------------------------------------------------
-KEY=/usr/share/keyrings/claude-desktop-archive-keyring.asc
-curl -fsSLo "$KEY" https://downloads.claude.ai/claude-desktop/key.asc
-FPR=$(gpg --show-keys --with-colons "$KEY" 2>/dev/null | awk -F: '/^fpr/ {print $10; exit}')
-[ "$FPR" = 31DDDE24DDFAB679F42D7BD2BAA929FF1A7ECACE ] || die "chave da Anthropic inesperada ($FPR)"
-echo "deb [arch=amd64,arm64 signed-by=$KEY] https://downloads.claude.ai/claude-desktop/apt/stable stable main" \
-    > /etc/apt/sources.list.d/claude-desktop.list
-apt-get update
-# Com os recomendados: QEMU, OVMF e virtiofsd, usados pelo Cowork.
-"${APT[@]}" claude-desktop
+if [ "$IMAGEM" = 1 ]; then
+    # A ISO não leva software da Anthropic: o Claude é baixado na máquina de quem instala.
+    echo "Modo imagem: o Claude Desktop fica para o pós-instalação."
+else
+    bash "$AQUI/rootfs/usr/local/sbin/morfo-instalar-claude" || die "não consegui instalar o Claude Desktop"
+fi
 
 # -----------------------------------------------------------------------------
 say "5/9 Arquivos do Morfo Linux"
@@ -194,7 +198,7 @@ systemctl disable getty@tty1.service 2>/dev/null || true
 say "7/9 Cowork: virtualização"
 # -----------------------------------------------------------------------------
 echo vhost_vsock > /etc/modules-load.d/vhost_vsock.conf
-modprobe vhost_vsock 2>/dev/null || true
+[ "$IMAGEM" = 1 ] || modprobe vhost_vsock 2>/dev/null || true
 for u in $(awk -F: '$3 >= 1000 && $3 < 60000 {print $1}' /etc/passwd); do
     usermod -aG kvm,video,render,netdev "$u" 2>/dev/null || usermod -aG kvm "$u"
 done
@@ -204,7 +208,9 @@ sed -i -E 's/^#?EXTRA_GROUPS=.*/EXTRA_GROUPS="kvm video render netdev"/; s/^#?AD
 # -----------------------------------------------------------------------------
 say "8/9 Boot em Macs: GRUB no caminho que o firmware da Apple procura"
 # -----------------------------------------------------------------------------
-if [ -d /sys/firmware/efi ] || [ "$INSTALADOR" = 1 ]; then
+if [ "$IMAGEM" = 1 ]; then
+    echo "Modo imagem: o GRUB é instalado pelo instalador (Calamares)."
+elif [ -d /sys/firmware/efi ] || [ "$INSTALADOR" = 1 ]; then
     echo "grub-efi-amd64 grub2/force_efi_extra_removable boolean true" | debconf-set-selections
     if [ -d /boot/efi/EFI ]; then
         grub-install --target=x86_64-efi --efi-directory=/boot/efi --removable --no-nvram >/dev/null 2>&1 || \
@@ -218,7 +224,7 @@ say "9/9 Tema $TEMA (boot, login e terminal)"
 MORFO_FORCAR=1 /usr/local/sbin/morfo-tema "$TEMA"
 
 say "Morfo Linux instalado"
-if [ "$INSTALADOR" = 0 ]; then
+if [ "$INSTALADOR" = 0 ] && [ "$IMAGEM" = 0 ]; then
     cat <<EOF
 
   Reinicie com:  sudo reboot

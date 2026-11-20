@@ -1,0 +1,59 @@
+name: Morfo Linux (ISO viva)
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+    paths: ["linux/**", ".github/workflows/morfo-linux-live.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  live:
+    name: Gerar ISO viva com Calamares
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verificar scripts
+        run: |
+          shellcheck -S warning linux/live/build-live.sh linux/live/config/hooks/normal/*.hook.chroot \
+            linux/live/config/includes.chroot/usr/local/sbin/* linux/live/config/includes.chroot/usr/local/bin/*
+          python3 -m py_compile linux/live/config/includes.chroot/usr/share/morfo/boasvindas/morfo-boasvindas.py
+
+      - name: Gerar a ISO (live-build em Debian)
+        env:
+          MORFO_VERSAO: ${{ github.ref_type == 'tag' && github.ref_name || format('dev-{0}', github.run_number) }}
+        run: |
+          docker run --rm --privileged -v "$PWD:/repo" -e MORFO_VERSAO \
+            debian:trixie bash /repo/linux/live/build-live.sh
+
+      - name: Log do build
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-live-log
+          path: linux/dist/build-live.log
+          if-no-files-found: ignore
+
+      - name: Guardar a ISO
+        uses: actions/upload-artifact@v4
+        with:
+          name: morfo-linux-live-iso
+          path: |
+            linux/dist/morfo-linux-live-*.iso
+            linux/dist/morfo-linux-live-*.iso.sha256
+          retention-days: 14
+
+      - name: Publicar na release
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            linux/dist/morfo-linux-live-*.iso
+            linux/dist/morfo-linux-live-*.iso.sha256

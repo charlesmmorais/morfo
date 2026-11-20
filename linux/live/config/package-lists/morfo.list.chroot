@@ -1,0 +1,28 @@
+# Sessão viva
+live-boot
+live-config
+live-config-systemd
+sudo
+
+# Instalador
+calamares
+qt6-wayland
+qtwayland5
+dosfstools
+parted
+rsync
+efibootmgr
+grub-efi-amd64
+grub-efi-amd64-bin
+grub-pc-bin
+
+# Ferramentas usadas pelo setup do Morfo (o resto ele mesmo instala)
+curl
+gnupg
+ca-certificates
+pciutils
+
+# Idioma e teclado da sessão viva
+locales
+keyboard-configuration
+console-setup
