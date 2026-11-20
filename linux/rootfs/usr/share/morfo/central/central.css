@@ -1,0 +1,78 @@
+/* Morfo Linux — Central do Morfo. Complementa base.css, o tema e rede.css. */
+
+.central {
+  padding: 0;
+}
+
+.lateral {
+  background: alpha(@campo, 0.45);
+  border-right: 1px solid alpha(@borda, 0.8);
+  border-radius: 22px 0 0 22px;
+  padding: 18px 10px;
+  min-width: 190px;
+}
+
+.lateral > row {
+  border-radius: 10px;
+  margin: 2px 0;
+  padding: 0;
+  background: transparent;
+}
+
+.lateral > row:selected {
+  background: alpha(@destaque, 0.14);
+}
+
+.item-lateral {
+  padding: 11px 16px;
+  font-size: 15px;
+  color: @texto;
+}
+
+.lateral > row:selected .item-lateral {
+  font-weight: 600;
+  color: @destaque;
+}
+
+.conteudo {
+  padding: 26px 28px 8px 28px;
+}
+
+.opcao-tema {
+  padding: 8px;
+  border-radius: 14px;
+  background: alpha(@campo, 0.7);
+  border: 1px solid alpha(@borda, 0.8);
+  color: @texto;
+}
+
+.opcao-tema.escolhida {
+  border: 2px solid @destaque;
+}
+
+.miniatura {
+  border-radius: 10px;
+}
+
+scale trough {
+  background: alpha(@borda, 0.9);
+  min-height: 6px;
+  border-radius: 3px;
+}
+
+scale highlight {
+  background-image: linear-gradient(90deg, @destaque-claro, @destaque);
+  border-radius: 3px;
+}
+
+scale slider {
+  background: @campo;
+  border: 2px solid @destaque;
+  min-width: 18px;
+  min-height: 18px;
+  border-radius: 999px;
+}
+
+switch:checked {
+  background: @destaque;
+}

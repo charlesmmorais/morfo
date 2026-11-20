@@ -1,0 +1,7 @@
+#!/bin/sh
+# Morfo Linux — abre ou fecha a Central do Morfo (atalho Super+Espaço).
+if pgrep -u "$(id -u)" -f "central/morfo-central.py" >/dev/null 2>&1; then
+    pkill -u "$(id -u)" -f "central/morfo-central.py"
+    exit 0
+fi
+exec python3 /usr/share/morfo/central/morfo-central.py "$@"

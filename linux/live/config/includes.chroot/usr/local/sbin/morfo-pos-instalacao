@@ -22,7 +22,9 @@ fi
 GRUPO=$(id -gn _greetd 2>/dev/null || echo root)
 install -d -m 0775 -o root -g "$GRUPO" /var/lib/morfo
 echo "$TEMA" > /var/lib/morfo/tema
-chgrp "$GRUPO" /var/lib/morfo/tema && chmod 0664 /var/lib/morfo/tema
+chmod 0666 /var/lib/morfo/tema
+[ -f /var/lib/morfo/teclado ] || : > /var/lib/morfo/teclado
+chmod 0666 /var/lib/morfo/teclado
 
 # 3. Tema (GRUB, Plymouth e terminal).
 MORFO_FORCAR=1 /usr/local/sbin/morfo-tema "$TEMA" || true

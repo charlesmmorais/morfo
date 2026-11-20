@@ -70,7 +70,7 @@ done
 # Conteúdo do Morfo que o late.sh copia para o sistema instalado.
 M="$ISO/morfo"
 rm -rf "$M" && mkdir -p "$M"
-cp -r "$LINUX/rootfs" "$LINUX/setup.sh" "$M/"
+cp -r "$LINUX/rootfs" "$LINUX/setup.sh" "$LINUX/VERSAO" "$M/"
 cp "$LINUX/installer/late.sh" "$M/"
 
 # Kit offline: driver do Wi-Fi Broadcom (para o kernel exato desta ISO),

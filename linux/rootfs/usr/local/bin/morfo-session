@@ -12,7 +12,7 @@ export XDG_SESSION_TYPE=wayland
 export ELECTRON_OZONE_PLATFORM_HINT=auto
 
 if ! command -v claude-desktop >/dev/null 2>&1; then
-    exec cage -s -- foot -e sh -c '
+    exec morfo-sway foot sh -c '
 printf "\n  O Claude ainda não foi instalado.\n\n"
 printf "  Ele é baixado do site oficial da Anthropic assim que houver internet:\n"
 printf "  saia (exit), escolha \"Configurar Wi-Fi\" na tela de login e conecte.\n"
@@ -21,5 +21,5 @@ printf "  Com internet, também dá para instalar agora:  sudo morfo-instalar-cl
 exec bash -l'
 fi
 
-# -d: sem decorações de janela; -s: permite trocar de terminal (Ctrl+Alt+F2).
-exec cage -d -s -- claude-desktop
+# Sway em modo quiosque: o Claude em tela cheia, e Super+Espaço abre a Central.
+exec morfo-sway claude-desktop

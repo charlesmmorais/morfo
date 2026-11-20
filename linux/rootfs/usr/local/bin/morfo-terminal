@@ -1,4 +1,4 @@
 #!/bin/sh
 # Morfo Linux — terminal em tela cheia. "exit" volta para o login.
 . /usr/local/lib/morfo-teclado.sh
-exec cage -d -s -- foot --title "Terminal" bash -l
+exec morfo-sway foot --app-id org.morfolinux.Terminal bash -l

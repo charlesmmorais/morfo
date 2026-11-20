@@ -236,7 +236,7 @@ class BoasVindas(Gtk.ApplicationWindow):
                     "env", "QT_QPA_PLATFORM=wayland;xcb", "calamares"], "Abrindo o instalador…")
 
     def rede(self):
-        self.rodar(["python3", str(SHARE / "rede" / "morfo-rede.py")])
+        self.rodar(["python3", str(SHARE / "central" / "morfo-central.py"), "--pagina", "wifi"])
 
     def experimentar(self):
         if self.ocupado:

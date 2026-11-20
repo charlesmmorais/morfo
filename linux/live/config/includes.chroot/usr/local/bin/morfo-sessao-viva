@@ -3,4 +3,4 @@
 . /usr/local/lib/morfo-teclado.sh
 export XDG_CURRENT_DESKTOP=GNOME
 export XDG_SESSION_TYPE=wayland
-exec cage -d -s -- python3 /usr/share/morfo/boasvindas/morfo-boasvindas.py
+exec morfo-sway python3 /usr/share/morfo/boasvindas/morfo-boasvindas.py

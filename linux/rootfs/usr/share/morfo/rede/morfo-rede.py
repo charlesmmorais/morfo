@@ -125,64 +125,28 @@ def tema_atual() -> str:
         return "areia"
 
 
-class Rede(Gtk.ApplicationWindow):
-    def __init__(self, app: Gtk.Application):
-        super().__init__(application=app, title="Rede")
-        tema = tema_atual()
-        css = Gtk.CssProvider()
-        g = SHARE / "greeter"
-        css.load_from_string((g / "base.css").read_text() + (g / f"{tema}.css").read_text()
-                             + (SHARE / "rede" / "rede.css").read_text())
-        Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), css,
-                                                  Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+class PainelRede(Gtk.Box):
+    """Lista de redes Wi-Fi com conexão por senha. Usado pela tela de rede
+    e pela Central do Morfo."""
 
-        overlay = Gtk.Overlay()
-        self.set_child(overlay)
-        fundo = Gtk.Picture.new_for_filename(str(SHARE / "temas" / tema / "fundo.jpg"))
-        fundo.set_content_fit(Gtk.ContentFit.COVER)
-        fundo.set_can_shrink(True)
-        overlay.set_child(fundo)
-
-        raiz = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        raiz.add_css_class("raiz")
-        overlay.add_overlay(raiz)
-
-        topo = Gtk.Box(spacing=12)
-        topo.add_css_class("topo")
-        # Gtk.Image com tamanho fixo: o Gtk.Picture cresce até o tamanho do arquivo.
-        marca = Gtk.Image.new_from_file(str(SHARE / "temas" / tema / "logo-128.png"))
-        marca.set_pixel_size(30)
-        marca.set_valign(Gtk.Align.CENTER)
-        nome = Gtk.Label(label="morfo")
-        nome.add_css_class("nome")
-        topo.append(marca)
-        topo.append(nome)
-        topo.append(Gtk.Box(hexpand=True))
-        sair = Gtk.Button(label="Voltar ao login")
-        sair.add_css_class("energia")
-        sair.set_valign(Gtk.Align.CENTER)
-        sair.connect("clicked", lambda *_: app.quit())
-        topo.append(sair)
-        raiz.append(topo)
-
-        cartao = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14,
-                         halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER, vexpand=True)
-        cartao.add_css_class("cartao")
-        cartao.set_size_request(520, -1)
-
+    def __init__(self, titulo_visivel: bool = True):
+        super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=14)
         cab = Gtk.Box(spacing=10)
         titulo = Gtk.Label(label="Rede", xalign=0, hexpand=True)
         titulo.add_css_class("titulo")
         self.atualizar = Gtk.Button(label="Procurar redes")
         self.atualizar.add_css_class("pilula")
         self.atualizar.connect("clicked", lambda *_: self.carregar(True))
-        cab.append(titulo)
+        if titulo_visivel:
+            cab.append(titulo)
+        else:
+            cab.append(Gtk.Box(hexpand=True))
         cab.append(self.atualizar)
-        cartao.append(cab)
+        self.append(cab)
 
         self.estado = Gtk.Label(xalign=0, wrap=True)
         self.estado.add_css_class("estado")
-        cartao.append(self.estado)
+        self.append(self.estado)
 
         rolagem = Gtk.ScrolledWindow(vexpand=True)
         rolagem.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
@@ -192,17 +156,15 @@ class Rede(Gtk.ApplicationWindow):
         self.lista = Gtk.ListBox(selection_mode=Gtk.SelectionMode.NONE)
         self.lista.add_css_class("redes")
         rolagem.set_child(self.lista)
-        cartao.append(rolagem)
+        self.append(rolagem)
 
         self.aviso = Gtk.Label(xalign=0, wrap=True, visible=False)
         self.aviso.add_css_class("erro")
-        cartao.append(self.aviso)
-
-        raiz.append(cartao)
-        raiz.append(Gtk.Box(height_request=40))
+        self.append(self.aviso)
 
         self.salvas: set[str] = set()
         self.carregar(False)
+
 
     # ---- dados ---------------------------------------------------------------
 
@@ -322,6 +284,58 @@ class Rede(Gtk.ApplicationWindow):
         else:
             self.aviso.add_css_class("ok")
         return False
+
+
+
+class Rede(Gtk.ApplicationWindow):
+    def __init__(self, app: Gtk.Application):
+        super().__init__(application=app, title="Rede")
+        tema = tema_atual()
+        css = Gtk.CssProvider()
+        g = SHARE / "greeter"
+        css.load_from_string((g / "base.css").read_text() + (g / f"{tema}.css").read_text()
+                             + (SHARE / "rede" / "rede.css").read_text())
+        Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), css,
+                                                  Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+
+        overlay = Gtk.Overlay()
+        self.set_child(overlay)
+        fundo = Gtk.Picture.new_for_filename(str(SHARE / "temas" / tema / "fundo.jpg"))
+        fundo.set_content_fit(Gtk.ContentFit.COVER)
+        fundo.set_can_shrink(True)
+        overlay.set_child(fundo)
+
+        raiz = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        raiz.add_css_class("raiz")
+        overlay.add_overlay(raiz)
+
+        topo = Gtk.Box(spacing=12)
+        topo.add_css_class("topo")
+        # Gtk.Image com tamanho fixo: o Gtk.Picture cresce até o tamanho do arquivo.
+        marca = Gtk.Image.new_from_file(str(SHARE / "temas" / tema / "logo-128.png"))
+        marca.set_pixel_size(30)
+        marca.set_valign(Gtk.Align.CENTER)
+        nome = Gtk.Label(label="morfo")
+        nome.add_css_class("nome")
+        topo.append(marca)
+        topo.append(nome)
+        topo.append(Gtk.Box(hexpand=True))
+        sair = Gtk.Button(label="Voltar ao login")
+        sair.add_css_class("energia")
+        sair.set_valign(Gtk.Align.CENTER)
+        sair.connect("clicked", lambda *_: app.quit())
+        topo.append(sair)
+        raiz.append(topo)
+
+        cartao = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14,
+                         halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER, vexpand=True)
+        cartao.add_css_class("cartao")
+        cartao.set_size_request(520, -1)
+
+        cartao.append(PainelRede())
+
+        raiz.append(cartao)
+        raiz.append(Gtk.Box(height_request=40))
 
 
 def traduzir(txt: str) -> str:

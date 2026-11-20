@@ -1,4 +1,5 @@
 #!/bin/sh
-# Morfo Linux — tela de rede (Wi-Fi). "Voltar ao login" encerra a sessão.
+# Morfo Linux — Central do Morfo aberta no Wi-Fi, como sessão própria
+# (escolhida na tela de login). Fechar a Central volta para o login.
 . /usr/local/lib/morfo-teclado.sh
-exec cage -d -s -- python3 /usr/share/morfo/rede/morfo-rede.py
+exec morfo-sway python3 /usr/share/morfo/central/morfo-central.py --pagina wifi

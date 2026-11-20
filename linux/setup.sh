@@ -118,12 +118,12 @@ say "2/9 Base: login, quiosque, rede, som, fontes, boot gráfico"
 # -----------------------------------------------------------------------------
 "${APT[@]}" \
     curl gnupg ca-certificates \
-    greetd cage xwayland foot \
+    greetd cage sway xwayland foot \
     python3 python3-gi gir1.2-gtk-4.0 \
     fonts-inter fonts-noto-core fonts-noto-color-emoji \
     gnome-keyring libpam-gnome-keyring libsecret-1-0 dbus-user-session \
-    network-manager \
-    pipewire pipewire-pulse pipewire-alsa wireplumber alsa-utils \
+    network-manager bluez \
+    pipewire pipewire-pulse pipewire-alsa wireplumber alsa-utils pulseaudio-utils \
     plymouth plymouth-themes grub-common \
     intel-microcode firmware-misc-nonfree firmware-amd-graphics
 
@@ -168,7 +168,8 @@ for t in grafite areia; do
     cp -r --no-preserve=ownership,mode "$TEMAS_DIR/$t/." "/usr/share/morfo/temas/$t/"
     chmod -R u=rwX,go=rX "/usr/share/morfo/temas/$t"
 done
-printf 'Morfo Linux\nbase: %s\n' "$PRETTY_NAME" > /etc/morfo-release
+VERSAO_MORFO=$(cat "$AQUI/VERSAO" 2>/dev/null || echo dev)
+printf 'Morfo Linux %s\nbase: %s\n' "$VERSAO_MORFO" "$PRETTY_NAME" > /etc/morfo-release
 
 # -----------------------------------------------------------------------------
 say "6/9 Tela de login (greetd) e chaveiro destravado no login"
@@ -180,8 +181,11 @@ sed -i "s/^user = .*/user = \"$GREETER_USER\"/" /etc/greetd/config.toml
 
 install -d -m 0775 -o root -g "$(id -gn "$GREETER_USER")" /var/lib/morfo
 echo "$TEMA" > /var/lib/morfo/tema
-chgrp "$(id -gn "$GREETER_USER")" /var/lib/morfo/tema
-chmod 0664 /var/lib/morfo/tema
+# Tema e teclado podem ser trocados por qualquer usuário da máquina (tela de
+# login e Central do Morfo); o que exige root é aplicado pelo morfo-tema.path.
+chmod 0666 /var/lib/morfo/tema
+[ -f /var/lib/morfo/teclado ] || : > /var/lib/morfo/teclado
+chmod 0666 /var/lib/morfo/teclado
 
 PAM=/etc/pam.d/greetd
 if [ -f "$PAM" ] && ! grep -q pam_gnome_keyring "$PAM"; then
@@ -202,10 +206,10 @@ say "7/9 Cowork: virtualização"
 echo vhost_vsock > /etc/modules-load.d/vhost_vsock.conf
 [ "$IMAGEM" = 1 ] || modprobe vhost_vsock 2>/dev/null || true
 for u in $(awk -F: '$3 >= 1000 && $3 < 60000 {print $1}' /etc/passwd); do
-    usermod -aG kvm,video,render,netdev "$u" 2>/dev/null || usermod -aG kvm "$u"
+    usermod -aG kvm,video,render,netdev,bluetooth "$u" 2>/dev/null || usermod -aG kvm,video,render,netdev "$u" 2>/dev/null || true
 done
 # Usuários criados depois também entram nos grupos.
-sed -i -E 's/^#?EXTRA_GROUPS=.*/EXTRA_GROUPS="kvm video render netdev"/; s/^#?ADD_EXTRA_GROUPS=.*/ADD_EXTRA_GROUPS=1/' /etc/adduser.conf 2>/dev/null || true
+sed -i -E 's/^#?EXTRA_GROUPS=.*/EXTRA_GROUPS="kvm video render netdev bluetooth"/; s/^#?ADD_EXTRA_GROUPS=.*/ADD_EXTRA_GROUPS=1/' /etc/adduser.conf 2>/dev/null || true
 
 # -----------------------------------------------------------------------------
 say "8/9 Boot em Macs: GRUB no caminho que o firmware da Apple procura"

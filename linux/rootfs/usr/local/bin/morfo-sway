@@ -1,0 +1,30 @@
+#!/bin/sh
+# Morfo Linux — roda um app dentro do sway em modo quiosque.
+#   morfo-sway <comando> [argumentos...]
+# Quando o app principal fecha, a sessão termina (volta para o login).
+. /usr/local/lib/morfo-teclado.sh
+
+[ $# -gt 0 ] || { echo "uso: morfo-sway <comando>" >&2; exit 1; }
+
+DIR=$(mktemp -d "${XDG_RUNTIME_DIR:-/tmp}/morfo-sway.XXXXXX")
+APP="$DIR/app.sh"
+# Script do app principal, com cada argumento entre aspas simples.
+{
+    echo '#!/bin/sh'
+    for a in "$@"; do printf "'%s' " "$(printf '%s' "$a" | sed "s/'/'\\\\''/g")"; done
+    printf '\nswaymsg exit\n'
+} > "$APP"
+chmod +x "$APP"
+
+{
+    cat /usr/share/morfo/sway/base.conf
+    printf '\ninput type:keyboard {\n'
+    printf '    xkb_layout "%s"\n' "${XKB_DEFAULT_LAYOUT:-us}"
+    printf '    xkb_model "%s"\n' "${XKB_DEFAULT_MODEL:-pc105}"
+    [ -n "${XKB_DEFAULT_VARIANT:-}" ] && printf '    xkb_variant "%s"\n' "$XKB_DEFAULT_VARIANT"
+    [ -n "${XKB_DEFAULT_OPTIONS:-}" ] && printf '    xkb_options "%s"\n' "$XKB_DEFAULT_OPTIONS"
+    printf '}\n'
+    printf '\nexec %s\n' "$APP"
+} > "$DIR/config"
+
+exec sway --unsupported-gpu -c "$DIR/config"

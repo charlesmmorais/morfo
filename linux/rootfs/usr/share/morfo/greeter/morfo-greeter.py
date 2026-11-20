@@ -32,7 +32,7 @@ NOME_TEMA = {"grafite": "Grafite", "areia": "Areia"}
 
 SESSOES = [
     ("Claude", ["/usr/local/bin/morfo-session"]),
-    ("Configurar Wi-Fi", ["/usr/local/bin/morfo-rede"]),
+    ("Central do Morfo (Wi-Fi, som…)", ["/usr/local/bin/morfo-rede"]),
     ("Terminal", ["/usr/local/bin/morfo-terminal"]),
 ]
 

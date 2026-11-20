@@ -50,7 +50,7 @@ cp -r "$LINUX/live/config/." config/
 # sistema instalado reaproveita (pós-instalação e retomada sem internet).
 M=config/includes.chroot/opt/morfo
 mkdir -p "$M/branding"
-cp -r "$LINUX/setup.sh" "$LINUX/rootfs" "$LINUX/offline" "$M/"
+cp -r "$LINUX/setup.sh" "$LINUX/VERSAO" "$LINUX/rootfs" "$LINUX/offline" "$M/"
 cp -r "$LINUX/branding/out" "$M/branding/"
 chmod +x config/hooks/normal/*.hook.chroot
 
