@@ -67,7 +67,7 @@ fi
 apt-get update
 
 # -----------------------------------------------------------------------------
-say "2/9 Base: login, quiosque, rede, fontes, boot gráfico"
+say "2/9 Base: login, quiosque, rede, som, fontes, boot gráfico"
 # -----------------------------------------------------------------------------
 "${APT[@]}" \
     curl gnupg ca-certificates \
@@ -76,6 +76,7 @@ say "2/9 Base: login, quiosque, rede, fontes, boot gráfico"
     fonts-inter fonts-noto-core fonts-noto-color-emoji \
     gnome-keyring libpam-gnome-keyring libsecret-1-0 dbus-user-session \
     network-manager \
+    pipewire pipewire-pulse pipewire-alsa wireplumber alsa-utils \
     plymouth grub-common \
     intel-microcode firmware-misc-nonfree firmware-amd-graphics
 
