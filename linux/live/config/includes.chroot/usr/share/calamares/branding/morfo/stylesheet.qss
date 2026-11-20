@@ -1,14 +1,14 @@
-/* Morfo Linux — Calamares no tema Grafite. */
+/* Morfo Linux — Calamares no tema Areia (o padrão). */
 
 QWidget {
     font-family: "Inter", "Noto Sans", sans-serif;
     font-size: 14px;
-    color: #E6E9F0;
-    background-color: #14171F;
+    color: #2B2420;
+    background-color: #F3EDE4;
 }
 
 #sidebarApp, #sidebarMenuApp {
-    background-color: #101218;
+    background-color: #EFE6DA;
 }
 
 QLabel { background: transparent; }
@@ -17,37 +17,37 @@ QPushButton {
     min-height: 34px;
     padding: 4px 18px;
     border-radius: 10px;
-    border: 1px solid #2C3242;
-    background-color: #1B1F2A;
-    color: #E6E9F0;
+    border: 1px solid #E2D6C6;
+    background-color: #FBF8F3;
+    color: #2B2420;
 }
-QPushButton:hover { border-color: #4A6CF7; }
+QPushButton:hover { border-color: #7A3F6E; }
 QPushButton:default, #view-button-next, #view-button-install {
     border: none;
     color: #FFFFFF;
     font-weight: 600;
-    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8FB8FF, stop:1 #4A6CF7);
+    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #B07AA6, stop:1 #7A3F6E);
 }
-QPushButton:disabled { color: #5B6273; border-color: #222734; background-color: #171A23; }
+QPushButton:disabled { color: #B5A99D; border-color: #E9DECE; background-color: #EFE6DA; }
 
 QLineEdit, QComboBox, QListView, QTreeView, QTextEdit, QPlainTextEdit, QSpinBox {
-    background-color: #10131A;
-    border: 1px solid #2C3242;
+    background-color: #FFFFFF;
+    border: 1px solid #E2D6C6;
     border-radius: 8px;
     padding: 6px;
-    selection-background-color: #4A6CF7;
+    selection-background-color: #7A3F6E;
     selection-color: #FFFFFF;
 }
-QLineEdit:focus, QComboBox:focus { border-color: #4A6CF7; }
+QLineEdit:focus, QComboBox:focus { border-color: #7A3F6E; }
 
 QComboBox QAbstractItemView {
-    background-color: #181B24;
-    border: 1px solid #2C3242;
-    selection-background-color: #2A3350;
+    background-color: #FBF8F3;
+    border: 1px solid #E2D6C6;
+    selection-background-color: #E9D9E4;
 }
 
 QListView::item, QTreeView::item { padding: 6px; border-radius: 6px; }
-QListView::item:selected, QTreeView::item:selected { background-color: #2A3350; color: #FFFFFF; }
+QListView::item:selected, QTreeView::item:selected { background-color: #E9D9E4; color: #2B2420; }
 
 QRadioButton, QCheckBox { spacing: 10px; background: transparent; }
 
@@ -56,15 +56,15 @@ QProgressBar {
     max-height: 10px;
     border: none;
     border-radius: 5px;
-    background-color: #1E2433;
+    background-color: #E9DECE;
     text-align: center;
     color: transparent;
 }
 QProgressBar::chunk {
     border-radius: 5px;
-    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #8FB8FF, stop:1 #4A6CF7);
+    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #B07AA6, stop:1 #7A3F6E);
 }
 
 QScrollBar:vertical { background: transparent; width: 10px; }
-QScrollBar::handle:vertical { background: #2C3242; border-radius: 5px; min-height: 30px; }
+QScrollBar::handle:vertical { background: #E2D6C6; border-radius: 5px; min-height: 30px; }
 QScrollBar::add-line, QScrollBar::sub-line { height: 0; }

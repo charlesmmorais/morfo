@@ -13,7 +13,7 @@ TEMAS=(grafite areia)
 
 [ "$(id -u)" -eq 0 ] || { echo "Use: sudo morfo-tema [grafite|areia]" >&2; exit 1; }
 
-tema="${1:-$(cat "$ESTADO/tema" 2>/dev/null || echo grafite)}"
+tema="${1:-$(cat "$ESTADO/tema" 2>/dev/null || echo areia)}"
 tema="${tema//[^a-z]/}"
 [[ " ${TEMAS[*]} " == *" $tema "* ]] || { echo "Tema desconhecido: $tema (use grafite ou areia)" >&2; exit 1; }
 

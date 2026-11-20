@@ -21,7 +21,7 @@ for _ in $(seq 1 15); do
 done
 [ "${TEM_REDE:-0}" = 1 ] || exit 0
 
-TEMA=$(cat "$PENDENTE" 2>/dev/null || echo grafite)
+TEMA=$(cat "$PENDENTE" 2>/dev/null || echo areia)
 wall "Morfo Linux: internet conectada. Terminando a instalação (alguns minutos)..." 2>/dev/null || true
 
 if bash /opt/morfo/setup.sh "$TEMA" >>"$LOG" 2>&1; then

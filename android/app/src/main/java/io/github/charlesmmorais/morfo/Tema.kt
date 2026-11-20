@@ -41,7 +41,7 @@ enum class Tema(
     val outro: Tema get() = if (this == GRAFITE) AREIA else GRAFITE
 
     companion object {
-        fun porId(id: String?): Tema = entries.firstOrNull { it.id == id } ?: GRAFITE
+        fun porId(id: String?): Tema = entries.firstOrNull { it.id == id } ?: AREIA
     }
 }
 

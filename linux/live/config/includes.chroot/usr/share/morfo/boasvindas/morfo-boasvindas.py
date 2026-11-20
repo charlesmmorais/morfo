@@ -30,9 +30,9 @@ NOME = {"grafite": "Grafite", "areia": "Areia"}
 def tema_salvo() -> str:
     try:
         t = (ESTADO / "tema").read_text().strip()
-        return t if t in TEMAS else "grafite"
+        return t if t in TEMAS else "areia"
     except OSError:
-        return "grafite"
+        return "areia"
 
 
 def salvar_tema(t: str) -> None:

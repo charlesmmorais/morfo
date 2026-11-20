@@ -23,8 +23,8 @@ Presentation {
         Rectangle {
             anchors.fill: parent
             gradient: Gradient {
-                GradientStop { position: 0.0; color: "#101218" }
-                GradientStop { position: 1.0; color: "#1C2338" }
+                GradientStop { position: 0.0; color: "#F3EDE4" }
+                GradientStop { position: 1.0; color: "#E9DECE" }
             }
         }
         Column {
@@ -39,7 +39,7 @@ Presentation {
             }
             Text {
                 text: slide.titulo
-                color: "#E6E9F0"
+                color: "#2B2420"
                 font.family: "Inter"
                 font.pixelSize: 30
                 font.weight: Font.Light
@@ -49,7 +49,7 @@ Presentation {
             }
             Text {
                 text: slide.texto
-                color: "#8C93A5"
+                color: "#7D7066"
                 font.family: "Inter"
                 font.pixelSize: 16
                 horizontalAlignment: Text.AlignHCenter

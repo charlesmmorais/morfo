@@ -3,7 +3,7 @@
 # Copia o Morfo para o sistema novo e roda o setup.sh dentro dele.
 
 TEMA=$(sed -n 's/.*morfo_tema=\([a-z]*\).*/\1/p' /proc/cmdline)
-[ -n "$TEMA" ] || TEMA=grafite
+[ -n "$TEMA" ] || TEMA=areia
 
 mkdir -p /target/opt/morfo
 cp -r /cdrom/morfo/. /target/opt/morfo/

@@ -15,7 +15,7 @@ set -euo pipefail
 AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 INSTALADOR=0
 IMAGEM=0
-TEMA=grafite
+TEMA=areia
 for a in "$@"; do
     case "$a" in
         --instalador) INSTALADOR=1 ;;

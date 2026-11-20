@@ -33,14 +33,14 @@ slideshowAPI: 2
 # Cores da barra lateral (Calamares 3.3 usa a primeira forma, versões
 # anteriores a segunda).
 style:
-    SidebarBackground:        "#101218"
-    SidebarText:              "#8C93A5"
-    SidebarTextCurrent:       "#E6E9F0"
-    SidebarBackgroundCurrent: "#1E2433"
-    sidebarBackground:        "#101218"
-    sidebarText:              "#8C93A5"
-    sidebarTextSelect:        "#E6E9F0"
-    sidebarSelect:            "#1E2433"
+    SidebarBackground:        "#EFE6DA"
+    SidebarText:              "#7D7066"
+    SidebarTextCurrent:       "#2B2420"
+    SidebarBackgroundCurrent: "#E2D6C6"
+    sidebarBackground:        "#EFE6DA"
+    sidebarText:              "#7D7066"
+    sidebarTextSelect:        "#2B2420"
+    sidebarSelect:            "#E2D6C6"
 
 uploadServer:
     type: "none"

@@ -120,9 +120,9 @@ def barras(sinal: int) -> str:
 def tema_atual() -> str:
     try:
         t = (ESTADO / "tema").read_text().strip()
-        return t if t in ("grafite", "areia") else "grafite"
+        return t if t in ("grafite", "areia") else "areia"
     except OSError:
-        return "grafite"
+        return "areia"
 
 
 class Rede(Gtk.ApplicationWindow):

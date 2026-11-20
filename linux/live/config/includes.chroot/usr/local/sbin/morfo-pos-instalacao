@@ -7,8 +7,8 @@ exec >>/var/log/morfo-pos-instalacao.log 2>&1
 echo "== Morfo: pós-instalação $(date -Is)"
 export DEBIAN_FRONTEND=noninteractive
 
-TEMA=$(cat /var/lib/morfo/tema 2>/dev/null || echo grafite)
-case "$TEMA" in grafite|areia) ;; *) TEMA=grafite ;; esac
+TEMA=$(cat /var/lib/morfo/tema 2>/dev/null || echo areia)
+case "$TEMA" in grafite|areia) ;; *) TEMA=areia ;; esac
 
 # 1. O que só serve ao pendrive.
 apt-get purge -y live-boot live-boot-initramfs-tools live-config live-config-systemd \

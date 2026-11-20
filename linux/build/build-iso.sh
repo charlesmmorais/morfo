@@ -106,11 +106,11 @@ fi
 mkdir -p "$M/temas"
 cp -r "$OUT/grafite" "$OUT/areia" "$M/temas/"
 
-# Menu UEFI com o tema do Morfo (Grafite).
+# Menu UEFI com o tema do Morfo (Areia, o padrão).
 T="$ISO/boot/grub/themes/morfo"
 mkdir -p "$T"
-cp "$OUT/grafite/grub.jpg" "$OUT/grafite"/select_*.png "$T/"
-sed -e 's/@TEXTO@/#E6E9F0/g' -e 's/@SUAVE@/#8C93A5/g' \
+cp "$OUT/areia/grub.jpg" "$OUT/areia"/select_*.png "$T/"
+sed -e 's/@TEXTO@/#2B2420/g' -e 's/@SUAVE@/#7D7066/g' \
     -e 's/Iniciando em %d s/Instalação automática em %d s/' \
     "$LINUX/rootfs/usr/share/morfo/boot/grub-theme.txt" > "$T/theme.txt"
 FONTE=$(fc-match -f '%{file}' 'Inter:style=Regular')

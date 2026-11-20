@@ -4,7 +4,7 @@
 set -euo pipefail
 
 # 1. O Morfo inteiro, sem o Claude (que é baixado na máquina de quem instala).
-bash /opt/morfo/setup.sh --imagem grafite
+bash /opt/morfo/setup.sh --imagem areia
 
 # 2. Na sessão viva, o greetd entra direto no usuário "morfo" (criado pelo
 #    live-config no boot) e abre a tela de boas-vindas. O pós-instalação
