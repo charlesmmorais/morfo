@@ -73,6 +73,13 @@ fi
 if [ -f config/bootloaders/isolinux/splash.png ]; then
     cp "$LINUX/live/splash-isolinux.png" config/bootloaders/isolinux/splash.png
 fi
+# Fundo claro (Areia): texto do menu em tons escuros, sem o título do Debian.
+T=config/bootloaders/grub-pc/live-theme/theme.txt
+if [ -f "$T" ]; then
+    sed -i -e 's/"#ffffff"/"#2B2420"/g' -e 's/"#a8a8a8"/"#7D7066"/g' \
+        -e 's/^title-text: .*/title-text: ""/' -e 's/fg_color = "#2B2420"/fg_color = "#7A3F6E"/' \
+        -e 's/bg_color = "#7D7066"/bg_color = "#E2D6C6"/' -e 's/text_color = "#000000"/text_color = "#FFFFFF"/' "$T"
+fi
 if [ -f config/bootloaders/grub-pc/config.cfg ]; then
     printf '\nset timeout=4\nset timeout_style=menu\n' >> config/bootloaders/grub-pc/config.cfg
 fi
