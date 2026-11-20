@@ -1,0 +1,7 @@
+[Unit]
+Description=Morfo Linux: aplica o tema (GRUB, Plymouth e terminal)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/morfo-tema
+Nice=10

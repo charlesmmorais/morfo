@@ -1,0 +1,70 @@
+name: Morfo Linux
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+    paths: ["linux/**", ".github/workflows/morfo-linux.yml"]
+  pull_request:
+    paths: ["linux/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  verificar:
+    name: Verificar scripts e greeter
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: ShellCheck
+        run: |
+          shellcheck -S warning linux/setup.sh linux/build/build-iso.sh linux/installer/late.sh \
+            linux/rootfs/usr/local/sbin/morfo-tema linux/rootfs/usr/local/bin/morfo-*
+      - name: Python
+        run: python3 -m py_compile linux/rootfs/usr/share/morfo/greeter/morfo-greeter.py linux/branding/gerar.py
+
+  iso:
+    name: Gerar ISO
+    needs: verificar
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Dependências
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            xorriso cpio curl python3-numpy python3-pil librsvg2-bin \
+            grub-common fonts-inter fontconfig
+
+      - name: Gerar a ISO
+        env:
+          MORFO_VERSAO: ${{ github.ref_type == 'tag' && github.ref_name || format('dev-{0}', github.sha) }}
+        run: bash linux/build/build-iso.sh
+
+      - name: Guardar como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: morfo-linux-iso
+          path: linux/dist/*.iso*
+          retention-days: 14
+
+      - name: Publicar release
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Morfo Linux ${{ github.ref_name }}
+          files: linux/dist/*.iso*
+          body: |
+            ISO instaladora do Morfo Linux (amd64, UEFI e BIOS).
+
+            1. Grave a ISO num pendrive (balenaEtcher, ou `dd`).
+            2. No Mac, ligue segurando **Option** e escolha "EFI Boot".
+            3. Escolha o tema, siga o instalador **com cabo de rede** e reinicie.
+
+            O Claude Desktop não vem na ISO: é instalado do repositório oficial da Anthropic durante a instalação.
+            Confira o download com o arquivo `.sha256`.

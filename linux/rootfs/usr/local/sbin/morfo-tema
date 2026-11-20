@@ -1,0 +1,97 @@
+#!/bin/bash
+# Morfo Linux — aplica um tema a tudo: boot (GRUB e Plymouth), login e terminal.
+#
+#   sudo morfo-tema areia      troca para Areia
+#   sudo morfo-tema grafite    troca para Grafite
+#   sudo morfo-tema            reaplica o tema salvo (usado pelo sistema
+#                              quando você troca o tema na tela de login)
+set -euo pipefail
+
+ESTADO=/var/lib/morfo
+SHARE=/usr/share/morfo
+TEMAS=(grafite areia)
+
+[ "$(id -u)" -eq 0 ] || { echo "Use: sudo morfo-tema [grafite|areia]" >&2; exit 1; }
+
+tema="${1:-$(cat "$ESTADO/tema" 2>/dev/null || echo grafite)}"
+tema="${tema//[^a-z]/}"
+[[ " ${TEMAS[*]} " == *" $tema "* ]] || { echo "Tema desconhecido: $tema (use grafite ou areia)" >&2; exit 1; }
+
+mkdir -p "$ESTADO"
+echo "$tema" > "$ESTADO/tema"
+# Se nada mudou desde a última aplicação, não refaz o initramfs.
+if [ "$(cat "$ESTADO/tema-aplicado" 2>/dev/null)" = "$tema" ] && [ "${MORFO_FORCAR:-0}" != 1 ]; then
+    exit 0
+fi
+
+case "$tema" in
+    grafite) TEXTO="#E6E9F0"; SUAVE="#8C93A5"; FOOT_FUNDO="101218"; FOOT_TEXTO="e6e9f0"; FOOT_DESTAQUE="4a6cf7" ;;
+    areia)   TEXTO="#2B2420"; SUAVE="#7D7066"; FOOT_FUNDO="f3ede4"; FOOT_TEXTO="2b2420"; FOOT_DESTAQUE="7a3f6e" ;;
+esac
+
+# --- GRUB --------------------------------------------------------------------
+G=/boot/grub/themes/morfo
+mkdir -p "$G"
+cp "$SHARE/temas/$tema/grub.jpg" "$SHARE/temas/$tema"/select_*.png "$G/"
+sed -e "s/@TEXTO@/$TEXTO/g" -e "s/@SUAVE@/$SUAVE/g" "$SHARE/boot/grub-theme.txt" > "$G/theme.txt"
+if [ ! -f "$G/morfo-18.pf2" ] && command -v grub-mkfont >/dev/null; then
+    FONTE=$(fc-match -f '%{file}' 'Inter:style=Regular')
+    for s in 14 18; do grub-mkfont -n "Morfo" -s "$s" -o "$G/morfo-$s.pf2" "$FONTE" 2>/dev/null; done
+fi
+mkdir -p /etc/default/grub.d
+cat > /etc/default/grub.d/morfo.cfg <<EOF
+# Gerado pelo morfo-tema
+GRUB_THEME="$G/theme.txt"
+GRUB_GFXMODE=auto
+GRUB_TIMEOUT=2
+GRUB_TIMEOUT_STYLE=menu
+GRUB_DISTRIBUTOR="Morfo"
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash loglevel=3 vt.global_cursor_default=0"
+EOF
+update-grub >/dev/null 2>&1 || echo "Aviso: update-grub falhou" >&2
+
+# --- Plymouth ----------------------------------------------------------------
+P=/usr/share/plymouth/themes/morfo
+mkdir -p "$P"
+cp "$SHARE/temas/$tema/logo-128.png" "$SHARE/temas/$tema/ponto.png" "$P/"
+# Cores do fundo, em frações de 0 a 1, a partir do degradê do tema.
+case "$tema" in
+    grafite) cores="TOPO_R=0.063;TOPO_G=0.071;TOPO_B=0.094;BASE_R=0.094;BASE_G=0.110;BASE_B=0.157;TEXTO_R=0.90;TEXTO_G=0.91;TEXTO_B=0.94;" ;;
+    areia)   cores="TOPO_R=0.953;TOPO_G=0.929;TOPO_B=0.894;BASE_R=0.914;BASE_G=0.871;BASE_B=0.808;TEXTO_R=0.17;TEXTO_G=0.14;TEXTO_B=0.13;" ;;
+esac
+{ echo "$cores" | tr ';' '\n' | sed '/^$/d; s/$/;/'; cat "$SHARE/boot/morfo.script"; } > "$P/morfo.script"
+cat > "$P/morfo.plymouth" <<EOF
+[Plymouth Theme]
+Name=Morfo
+Description=Morfo Linux ($tema)
+ModuleName=script
+
+[script]
+ImageDir=$P
+ScriptFile=$P/morfo.script
+EOF
+if command -v plymouthd >/dev/null; then
+    if command -v plymouth-set-default-theme >/dev/null; then
+        plymouth-set-default-theme morfo
+    else
+        mkdir -p /etc/plymouth
+        printf '[Daemon]\nTheme=morfo\n' > /etc/plymouth/plymouthd.conf
+    fi
+    update-initramfs -u >/dev/null 2>&1 || echo "Aviso: update-initramfs falhou" >&2
+fi
+
+# --- Terminal (foot) ---------------------------------------------------------
+mkdir -p /etc/xdg/foot
+cat > /etc/xdg/foot/foot.ini <<EOF
+# Gerado pelo morfo-tema
+font=monospace:size=12
+pad=16x16
+[colors]
+background=$FOOT_FUNDO
+foreground=$FOOT_TEXTO
+selection-background=$FOOT_DESTAQUE
+selection-foreground=ffffff
+EOF
+
+echo "$tema" > "$ESTADO/tema-aplicado"
+echo "Tema $tema aplicado."

@@ -1,0 +1,6 @@
+kernel/target/
+limine/
+dist/
+linux/dist/
+linux/build/work/
+__pycache__/

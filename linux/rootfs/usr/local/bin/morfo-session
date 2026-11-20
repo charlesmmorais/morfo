@@ -1,0 +1,18 @@
+#!/bin/sh
+# Morfo Linux — a sessão principal: o Claude Desktop em tela cheia.
+# Chamada pelo greetd depois do login. Fechar o Claude volta para o login.
+
+# O Chromium/Electron só usa o gnome-keyring (para lembrar o seu login no
+# Claude) quando acha que está num desktop GNOME.
+export XDG_CURRENT_DESKTOP=GNOME
+export XDG_SESSION_DESKTOP=morfo
+export XDG_SESSION_TYPE=wayland
+# Wayland nativo quando o Electron suportar; senão o cage oferece Xwayland.
+export ELECTRON_OZONE_PLATFORM_HINT=auto
+
+if ! command -v claude-desktop >/dev/null 2>&1; then
+    exec cage -s -- foot -e sh -c 'echo "O Claude Desktop não está instalado."; echo; echo "Rode: sudo apt install claude-desktop"; echo; exec bash -l'
+fi
+
+# -d: sem decorações de janela; -s: permite trocar de terminal (Ctrl+Alt+F2).
+exec cage -d -s -- claude-desktop

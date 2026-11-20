@@ -1,0 +1,3 @@
+#!/bin/sh
+# Morfo Linux — terminal em tela cheia. "exit" volta para o login.
+exec cage -d -s -- foot --title "Terminal" bash -l

@@ -1,0 +1,7 @@
+# Morfo Linux — greetd abre a tela de login própria dentro do cage.
+[terminal]
+vt = 7
+
+[default_session]
+command = "cage -s -d -- python3 /usr/share/morfo/greeter/morfo-greeter.py"
+user = "_greetd"

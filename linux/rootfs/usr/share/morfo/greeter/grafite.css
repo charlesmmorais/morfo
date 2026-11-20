@@ -1,0 +1,11 @@
+/* Tema Grafite — escuro, destaque azul. */
+@define-color texto #E6E9F0;
+@define-color suave #8C93A5;
+@define-color cartao #181B24;
+@define-color campo #10131A;
+@define-color borda #2C3242;
+@define-color sombra #000000;
+@define-color destaque #4A6CF7;
+@define-color destaque-claro #8FB8FF;
+@define-color sobre-destaque #FFFFFF;
+@define-color erro #FF8A8A;

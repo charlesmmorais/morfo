@@ -1,0 +1,8 @@
+[Unit]
+Description=Morfo Linux: aplica o tema escolhido na tela de login
+
+[Path]
+PathChanged=/var/lib/morfo/tema
+
+[Install]
+WantedBy=multi-user.target
