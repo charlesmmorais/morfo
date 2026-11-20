@@ -113,6 +113,34 @@ def ponto(cor: str, d: Path, tamanho: int = 14) -> None:
     img.resize((tamanho, tamanho), Image.LANCZOS).save(d / "ponto.png")
 
 
+def plymouth_two_step(t: dict, d: Path) -> None:
+    """Imagens do tema two-step do Plymouth: a marca (watermark) e os quadros
+    da animação (throbber), três pontos que acendem em sequência."""
+    import math
+    from PIL import ImageDraw
+    p = d / "plymouth"
+    p.mkdir(exist_ok=True)
+    Image.open(d / "logo-256.png").resize((112, 112), Image.LANCZOS).save(p / "watermark.png")
+    cor = hex_rgb(t["grad"][1])
+    k, raio, passo, quadros = 4, 7, 26, 36
+    w, h = passo * 2 + raio * 2 + 4, raio * 2 + 4
+    for q in range(quadros):
+        img = Image.new("RGBA", (w * k, h * k), (0, 0, 0, 0))
+        dr = ImageDraw.Draw(img)
+        for i in range(3):
+            fase = (q / quadros) * 2 * math.pi - i * 0.9
+            alfa = int(255 * (0.25 + 0.75 * (math.sin(fase) * 0.5 + 0.5)))
+            cx, cy = (2 + raio + i * passo) * k, (2 + raio) * k
+            dr.ellipse((cx - raio * k, cy - raio * k, cx + raio * k, cy + raio * k), fill=cor + (alfa,))
+        img.resize((w, h), Image.LANCZOS).save(p / f"throbber-{q + 1:04d}.png")
+    # Peças do diálogo de senha (só aparecem com disco criptografado).
+    Image.new("RGBA", (10, 10), cor + (255,)).save(p / "bullet.png")
+    entrada = Image.new("RGBA", (300, 36), (0, 0, 0, 0))
+    ImageDraw.Draw(entrada).rounded_rectangle((0, 0, 299, 35), radius=10, fill=(255, 255, 255, 40), outline=cor + (255,))
+    entrada.save(p / "entry.png")
+    Image.open(d / "logo-128.png").resize((32, 32), Image.LANCZOS).save(p / "lock.png")
+
+
 def selecao_grub(cor: str, d: Path, raio: int = 12) -> None:
     """Destaque do item selecionado no menu do GRUB, em 9 pedaços (select_*.png)."""
     from PIL import ImageDraw
@@ -169,6 +197,7 @@ def main() -> None:
         grub.paste(marca, ((1920 - marca.width) // 2, 230), marca)
         grub.save(d / "grub.jpg", quality=90)
         ponto(t["grad"][1], d)
+        plymouth_two_step(t, d)
         selecao_grub(t["grad"][0], d)
         print(f"tema {nome}: ok")
 

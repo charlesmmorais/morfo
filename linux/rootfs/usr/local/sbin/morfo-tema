@@ -51,30 +51,50 @@ EOF
 update-grub >/dev/null 2>&1 || echo "Aviso: update-grub falhou" >&2
 
 # --- Plymouth ----------------------------------------------------------------
+# Tema "two-step" (o mesmo módulo do tema oficial do Debian): a marca fica
+# centralizada desde o início e sobrevive à troca de modo de vídeo no boot.
 P=/usr/share/plymouth/themes/morfo
-mkdir -p "$P"
-cp "$SHARE/temas/$tema/logo-128.png" "$SHARE/temas/$tema/ponto.png" "$P/"
-# Cores do fundo, em frações de 0 a 1, a partir do degradê do tema.
+rm -rf "$P" && mkdir -p "$P"
+cp "$SHARE/temas/$tema/plymouth/"*.png "$P/"
 case "$tema" in
-    grafite) cores="TOPO_R=0.063;TOPO_G=0.071;TOPO_B=0.094;BASE_R=0.094;BASE_G=0.110;BASE_B=0.157;TEXTO_R=0.90;TEXTO_G=0.91;TEXTO_B=0.94;" ;;
-    areia)   cores="TOPO_R=0.953;TOPO_G=0.929;TOPO_B=0.894;BASE_R=0.914;BASE_G=0.871;BASE_B=0.808;TEXTO_R=0.17;TEXTO_G=0.14;TEXTO_B=0.13;" ;;
+    grafite) INICIO=0x101218; FIM=0x181c28 ;;
+    areia)   INICIO=0xf3ede4; FIM=0xe9dece ;;
 esac
-{ echo "$cores" | tr ';' '\n' | sed '/^$/d; s/$/;/'; cat "$SHARE/boot/morfo.script"; } > "$P/morfo.script"
 cat > "$P/morfo.plymouth" <<EOF
 [Plymouth Theme]
 Name=Morfo
 Description=Morfo Linux ($tema)
-ModuleName=script
+ModuleName=two-step
 
-[script]
+[two-step]
 ImageDir=$P
-ScriptFile=$P/morfo.script
+HorizontalAlignment=.5
+VerticalAlignment=.62
+WatermarkHorizontalAlignment=.5
+WatermarkVerticalAlignment=.45
+DialogHorizontalAlignment=.5
+DialogVerticalAlignment=.70
+TitleHorizontalAlignment=.5
+TitleVerticalAlignment=.30
+Transition=none
+TransitionDuration=0.0
+BackgroundStartColor=$INICIO
+BackgroundEndColor=$FIM
+MessageBelowAnimation=true
+
+[boot-up]
+UseEndAnimation=false
+
+[shutdown]
+UseEndAnimation=false
+
+[reboot]
+UseEndAnimation=false
 EOF
 if command -v plymouthd >/dev/null; then
     plymouth-set-default-theme morfo 2>/dev/null || true
-    # Garante a escolha mesmo quando o comando acima não grava o arquivo.
     mkdir -p /etc/plymouth
-    printf '[Daemon]\nTheme=morfo\nShowDelay=0\n' > /etc/plymouth/plymouthd.conf
+    printf '[Daemon]\nTheme=morfo\nShowDelay=0\nDeviceTimeout=8\n' > /etc/plymouth/plymouthd.conf
     update-initramfs -u >/dev/null 2>&1 || echo "Aviso: update-initramfs falhou" >&2
 fi
 
