@@ -54,6 +54,26 @@ cp -r "$LINUX/setup.sh" "$LINUX/rootfs" "$LINUX/offline" "$M/"
 cp -r "$LINUX/branding/out" "$M/branding/"
 chmod +x config/hooks/normal/*.hook.chroot
 
+# Menus de boot com a marca do Morfo e início automático (o padrão do
+# live-build espera para sempre no menu, com a marca do Debian).
+mkdir -p config/bootloaders
+for b in grub-pc isolinux; do
+    [ -d "/usr/share/live/build/bootloaders/$b" ] && cp -r "/usr/share/live/build/bootloaders/$b" config/bootloaders/
+done
+echo "arquivos dos menus de boot:"; find config/bootloaders -type f | sort
+grep -rl "Live system" config/bootloaders 2>/dev/null | xargs -r sed -i 's/Live system/Morfo Linux/g'
+if [ -f config/bootloaders/grub-pc/splash.png ]; then
+    cp "$LINUX/live/splash-grub.png" config/bootloaders/grub-pc/splash.png
+fi
+if [ -f config/bootloaders/isolinux/splash.png ]; then
+    cp "$LINUX/live/splash-isolinux.png" config/bootloaders/isolinux/splash.png
+fi
+if [ -f config/bootloaders/grub-pc/config.cfg ]; then
+    printf '\nset timeout=4\nset timeout_style=menu\n' >> config/bootloaders/grub-pc/config.cfg
+fi
+find config/bootloaders/isolinux -name '*.cfg' -exec sed -i -E 's/^timeout .*/timeout 40/I' {} + 2>/dev/null || true
+grep -rn "timeout" config/bootloaders 2>/dev/null | head
+
 say "3/4 Montando a imagem (demora)"
 lb build 2>&1 | tee build.log | grep -E '^(P:|E:|W: )' || true
 ISO=$(ls -1 ./*.iso 2>/dev/null | head -1)
