@@ -33,7 +33,7 @@ lb config \
     --debian-installer none \
     --binary-images iso-hybrid \
     --linux-packages "linux-image linux-headers" \
-    --bootappend-live "boot=live components quiet splash username=morfo hostname=morfo locales=pt_BR.UTF-8 timezone=America/Sao_Paulo" \
+    --bootappend-live "boot=live components quiet splash username=morfo hostname=morfo locales=pt_BR.UTF-8 keyboard-layouts=br keyboard-model=abnt2 timezone=America/Sao_Paulo" \
     --iso-volume "MORFO_LINUX" \
     --iso-application "Morfo Linux" \
     --iso-publisher "Morfo Linux" \

@@ -1,6 +1,7 @@
 #!/bin/sh
 # Morfo Linux — a sessão principal: o Claude Desktop em tela cheia.
 # Chamada pelo greetd depois do login. Fechar o Claude volta para o login.
+. /usr/local/lib/morfo-teclado.sh
 
 # O Chromium/Electron só usa o gnome-keyring (para lembrar o seu login no
 # Claude) quando acha que está num desktop GNOME.

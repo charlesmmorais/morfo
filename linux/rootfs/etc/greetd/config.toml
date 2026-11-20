@@ -3,5 +3,5 @@
 vt = 1
 
 [default_session]
-command = "cage -s -d -- python3 /usr/share/morfo/greeter/morfo-greeter.py"
+command = "/usr/local/bin/morfo-greeter-sessao"
 user = "_greetd"

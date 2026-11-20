@@ -1,3 +1,4 @@
 #!/bin/sh
 # Morfo Linux — tela de rede (Wi-Fi). "Voltar ao login" encerra a sessão.
+. /usr/local/lib/morfo-teclado.sh
 exec cage -d -s -- python3 /usr/share/morfo/rede/morfo-rede.py

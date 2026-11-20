@@ -1,0 +1,4 @@
+#!/bin/sh
+# Morfo Linux — tela de login dentro do cage, com o teclado do sistema.
+. /usr/local/lib/morfo-teclado.sh
+exec cage -s -d -- python3 /usr/share/morfo/greeter/morfo-greeter.py

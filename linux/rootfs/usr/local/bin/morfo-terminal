@@ -1,3 +1,4 @@
 #!/bin/sh
 # Morfo Linux — terminal em tela cheia. "exit" volta para o login.
+. /usr/local/lib/morfo-teclado.sh
 exec cage -d -s -- foot --title "Terminal" bash -l
