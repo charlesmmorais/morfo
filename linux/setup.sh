@@ -163,8 +163,10 @@ say "5/9 Arquivos do Morfo Linux"
 done
 mkdir -p /usr/share/morfo/temas
 for t in grafite areia; do
+    # Cópia recursiva (o tema tem a subpasta plymouth/), sem herdar o dono do checkout.
     install -d -m 0755 "/usr/share/morfo/temas/$t"
-    install -m 0644 "$TEMAS_DIR/$t"/* "/usr/share/morfo/temas/$t/"
+    cp -r --no-preserve=ownership,mode "$TEMAS_DIR/$t/." "/usr/share/morfo/temas/$t/"
+    chmod -R u=rwX,go=rX "/usr/share/morfo/temas/$t"
 done
 printf 'Morfo Linux\nbase: %s\n' "$PRETTY_NAME" > /etc/morfo-release
 
