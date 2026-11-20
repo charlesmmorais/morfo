@@ -1,0 +1,13 @@
+[Unit]
+Description=Morfo Linux: termina a instalação quando houver internet
+After=network-online.target NetworkManager.service
+Wants=network-online.target
+ConditionPathExists=/var/lib/morfo/pendente
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/morfo-continuar
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target

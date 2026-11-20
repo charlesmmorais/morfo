@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: ShellCheck
         run: |
-          shellcheck -S warning linux/setup.sh linux/build/build-iso.sh linux/installer/late.sh \
+          shellcheck -S warning linux/setup.sh linux/build/build-iso.sh linux/installer/late.sh linux/offline/morfo-continuar linux/offline/90-morfo-continuar \
             linux/rootfs/usr/local/sbin/morfo-tema linux/rootfs/usr/local/bin/morfo-*
       - name: Python
         run: python3 -m py_compile linux/rootfs/usr/share/morfo/greeter/morfo-greeter.py linux/rootfs/usr/share/morfo/rede/morfo-rede.py linux/branding/gerar.py
@@ -64,7 +64,7 @@ jobs:
 
             1. Grave a ISO num pendrive (balenaEtcher, ou `dd`).
             2. No Mac, ligue segurando **Option** e escolha "EFI Boot".
-            3. Escolha o tema e siga o instalador **com internet** (cabo de rede ou celular Android em ancoragem USB).
+            3. Escolha o tema e siga o instalador. Sem internet? Tudo bem: no primeiro boot, conecte o Wi-Fi com `sudo nmtui` e o Morfo termina sozinho.
 
             Novidades: som (PipeWire), login gráfico direto no boot, setup que se recupera de instalação sem internet e o APK do Morfo para Android (Galaxy S25+).
 

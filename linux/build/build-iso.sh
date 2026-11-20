@@ -72,6 +72,37 @@ M="$ISO/morfo"
 rm -rf "$M" && mkdir -p "$M"
 cp -r "$LINUX/rootfs" "$LINUX/setup.sh" "$M/"
 cp "$LINUX/installer/late.sh" "$M/"
+
+# Kit offline: driver do Wi-Fi Broadcom (para o kernel exato desta ISO),
+# compilador e NetworkManager, como um repositório local. Assim, quem instala
+# sem internet consegue conectar o Wi-Fi no primeiro boot.
+mkdir -p "$M/offline"
+cp "$LINUX/offline/morfo-continuar" "$LINUX/offline/morfo-continuar.service" "$LINUX/offline/90-morfo-continuar" "$M/offline/"
+IMG=$(find "$ISO/pool" -name 'linux-image-[0-9]*-amd64_*_amd64.deb' ! -name '*dbg*' | head -1)
+ABI=$(basename "${IMG:-x}" | sed -nE 's/^linux-image-(.+)_[^_]+_amd64\.deb$/\1/p')
+CODINOME=$(find "$ISO/dists" -mindepth 1 -maxdepth 1 -type d ! -name stable -printf '%f\n' | head -1)
+if [ "${MORFO_SEM_KIT:-0}" != 1 ] && command -v docker >/dev/null && [ -n "$ABI" ] && [ -n "$CODINOME" ]; then
+    echo "kernel da ISO: $ABI ($CODINOME)"
+    KIT="$M/offline/kit"
+    mkdir -p "$KIT"
+    echo "$ABI" > "$KIT/ABI"
+    docker run --rm -v "$KIT:/kit" -e ABI="$ABI" "debian:$CODINOME" bash -euc '
+        sed -i -E "s/^Components:.*/Components: main contrib non-free non-free-firmware/" /etc/apt/sources.list.d/debian.sources
+        apt-get update -qq
+        apt-get install -y -qq dpkg-dev >/dev/null
+        PACOTES="network-manager wpasupplicant pciutils dkms broadcom-sta-dkms linux-headers-$ABI"
+        apt-cache depends --recurse --no-recommends --no-suggests --no-conflicts --no-breaks \
+            --no-replaces --no-enhances $PACOTES | grep -E "^[a-z0-9]" | sort -u > /tmp/lista
+        cd /kit
+        xargs -a /tmp/lista -n 20 -P 4 apt-get download -qq 2>/dev/null || true
+        for p in $PACOTES; do ls ${p}_*.deb >/dev/null 2>&1 || apt-get download -qq "$p"; done
+        dpkg-scanpackages --multiversion . /dev/null 2>/dev/null | gzip -9 > Packages.gz
+        chown -R "$(stat -c %u:%g /kit)" /kit
+    '
+    echo "kit offline: $(find "$KIT" -name '*.deb' | wc -l) pacotes, $(du -sh "$KIT" | cut -f1)"
+else
+    echo "Aviso: kit offline do Wi-Fi não incluído (precisa de docker; MORFO_SEM_KIT=1 desliga)."
+fi
 mkdir -p "$M/temas"
 cp -r "$OUT/grafite" "$OUT/areia" "$M/temas/"
 

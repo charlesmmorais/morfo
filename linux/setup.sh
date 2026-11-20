@@ -37,6 +37,49 @@ if [ -d "$AQUI/temas" ]; then TEMAS_DIR="$AQUI/temas"; else TEMAS_DIR="$AQUI/bra
 [ -f "$TEMAS_DIR/grafite/fundo.jpg" ] || die "assets não encontrados; rode: python3 branding/gerar.py"
 
 # -----------------------------------------------------------------------------
+# Sem internet? Instala, a partir do pendrive, o kit offline que vem na ISO
+# (Wi-Fi Broadcom + NetworkManager), deixa a instalação pendente e termina
+# sozinha quando a internet chegar (morfo-continuar).
+# -----------------------------------------------------------------------------
+tem_internet() { timeout 5 bash -c 'exec 3<>/dev/tcp/deb.debian.org/80' 2>/dev/null; }
+KIT="$AQUI/offline/kit"
+if ! tem_internet; then
+    [ -f "$KIT/Packages.gz" ] || die "sem internet. Conecte um cabo de rede (ou celular Android em ancoragem USB) e rode de novo."
+    say "Sem internet: instalando o Wi-Fi a partir do pendrive"
+    [ -f /etc/apt/sources.list ] && sed -i -E 's/^(deb cdrom:)/# \1/' /etc/apt/sources.list
+    echo "deb [trusted=yes] file:$KIT ./" > /etc/apt/sources.list.d/morfo-offline.list
+    apt-get update || true
+    ABI=$(cat "$KIT/ABI" 2>/dev/null || uname -r)
+    PACOTES=(network-manager wpasupplicant pciutils)
+    if ! command -v lspci >/dev/null || lspci -nn | grep -qiE 'network controller.*broadcom'; then
+        PACOTES+=(dkms "linux-headers-$ABI" broadcom-sta-dkms)
+    fi
+    "${APT[@]}" "${PACOTES[@]}" || echo "Aviso: parte do kit offline não instalou."
+
+    install -D -m 0755 "$AQUI/offline/morfo-continuar" /usr/local/sbin/morfo-continuar
+    install -D -m 0644 "$AQUI/offline/morfo-continuar.service" /etc/systemd/system/morfo-continuar.service
+    install -D -m 0755 "$AQUI/offline/90-morfo-continuar" /etc/NetworkManager/dispatcher.d/90-morfo-continuar
+    systemctl enable morfo-continuar.service
+    mkdir -p /var/lib/morfo
+    echo "$TEMA" > /var/lib/morfo/pendente
+    cat > /etc/motd <<'EOF'
+
+  Morfo Linux: falta só a internet.
+
+  O Wi-Fi já está instalado. Para conectar, rode:
+
+      sudo nmtui
+
+  Escolha "Ativar uma conexão", a sua rede e digite a senha.
+  Assim que conectar, o Morfo termina de instalar sozinho
+  (alguns minutos) e reinicia na tela de login.
+
+EOF
+    say "Pronto para terminar quando houver internet"
+    exit 0
+fi
+
+# -----------------------------------------------------------------------------
 say "1/9 Repositórios contrib e non-free (firmwares e Wi-Fi)"
 # -----------------------------------------------------------------------------
 if [ -f /etc/apt/sources.list ]; then

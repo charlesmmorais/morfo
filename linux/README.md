@@ -81,8 +81,8 @@ sudo reboot
 
 - PC ou Mac **x86-64**, com **4 GB** de RAM (8 GB recomendados para o Cowork)
 - **SSD** recomendado
-- Internet durante a instalação: cabo de rede ou celular Android em ancoragem USB
-  (o Wi-Fi dos Macs só funciona depois de instalado)
+- Internet: pode instalar sem ela. Nos Macs com Wi-Fi Broadcom, a ISO traz o driver;
+  no primeiro boot, `sudo nmtui` conecta o Wi-Fi e o Morfo termina de instalar sozinho
 - Virtualização (VT-x/AMD-V) ligada, para o Cowork
 - Uma conta Claude (Free, Pro, Max, Team ou Enterprise)
 
@@ -98,6 +98,7 @@ linux/
 │   ├── late.sh              passo final: roda o setup no sistema novo
 │   └── grub.cfg             menu de boot da ISO
 ├── build/build-iso.sh       remasteriza o netinst oficial do Debian
+├── offline/                 retomada automática quando a internet chega
 ├── setup.sh                 transforma um Debian no Morfo Linux
 └── rootfs/                  arquivos do sistema
     ├── etc/greetd/          login gráfico (greetd)

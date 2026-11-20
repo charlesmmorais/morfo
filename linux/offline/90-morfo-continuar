@@ -1,0 +1,9 @@
+#!/bin/sh
+# NetworkManager: quando uma conexão sobe e a instalação do Morfo está
+# pendente, termina a instalação em segundo plano.
+case "$2" in
+    up|connectivity-change)
+        [ -f /var/lib/morfo/pendente ] && systemctl start --no-block morfo-continuar.service
+        ;;
+esac
+exit 0

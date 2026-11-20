@@ -1,0 +1,33 @@
+#!/bin/bash
+# Morfo Linux — termina a instalação quando a internet chega.
+# Chamado pelo NetworkManager (ao conectar) ou pelo systemd (no boot).
+set -u
+
+PENDENTE=/var/lib/morfo/pendente
+LOG=/var/log/morfo-setup.log
+TRAVA=/run/morfo-continuar.lock
+
+[ -f "$PENDENTE" ] || exit 0
+exec 9>"$TRAVA"
+flock -n 9 || exit 0
+
+# Espera até 30 s por internet de verdade (DNS + conexão).
+for _ in $(seq 1 15); do
+    if timeout 5 bash -c 'exec 3<>/dev/tcp/deb.debian.org/80' 2>/dev/null; then
+        TEM_REDE=1
+        break
+    fi
+    sleep 2
+done
+[ "${TEM_REDE:-0}" = 1 ] || exit 0
+
+TEMA=$(cat "$PENDENTE" 2>/dev/null || echo grafite)
+wall "Morfo Linux: internet conectada. Terminando a instalação (alguns minutos)..." 2>/dev/null || true
+
+if bash /opt/morfo/setup.sh "$TEMA" >>"$LOG" 2>&1; then
+    rm -f "$PENDENTE" /etc/apt/sources.list.d/morfo-offline.list
+    : > /etc/motd
+    shutdown -r +1 "Morfo Linux instalado! O computador reinicia em 1 minuto na tela de login." 2>/dev/null || true
+else
+    wall "Morfo Linux: a instalação falhou. Veja /var/log/morfo-setup.log" 2>/dev/null || true
+fi
