@@ -74,6 +74,7 @@ sudo reboot
 | Conectar no Wi-Fi | Na tela de login, escolha **Configurar Wi-Fi** e entre |
 | Abrir um terminal | Escolha **Terminal**, ou `Ctrl+Alt+F2` |
 | Ajustar a saída de som | No Terminal: `wpctl status` e `wpctl set-default <número>` |
+| Ver o menu de boot (opções avançadas) | Segure **Esc** logo depois de ligar |
 | Atualizar tudo | `sudo apt update && sudo apt upgrade` |
 | Trocar o tema pelo terminal | `sudo morfo-tema grafite` ou `sudo morfo-tema areia` |
 

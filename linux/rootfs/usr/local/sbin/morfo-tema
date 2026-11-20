@@ -43,8 +43,10 @@ cat > /etc/default/grub.d/morfo.cfg <<EOF
 # Gerado pelo morfo-tema
 GRUB_THEME="$G/theme.txt"
 GRUB_GFXMODE=auto
-GRUB_TIMEOUT=2
-GRUB_TIMEOUT_STYLE=menu
+# Entra direto no Morfo; segurando Esc ao ligar, o menu aparece.
+GRUB_TIMEOUT=1
+GRUB_TIMEOUT_STYLE=hidden
+GRUB_RECORDFAIL_TIMEOUT=1
 GRUB_DISTRIBUTOR="Morfo"
 GRUB_CMDLINE_LINUX_DEFAULT="quiet splash loglevel=3 vt.global_cursor_default=0"
 EOF
