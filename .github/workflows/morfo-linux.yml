@@ -23,7 +23,7 @@ jobs:
           shellcheck -S warning linux/setup.sh linux/build/build-iso.sh linux/installer/late.sh \
             linux/rootfs/usr/local/sbin/morfo-tema linux/rootfs/usr/local/bin/morfo-*
       - name: Python
-        run: python3 -m py_compile linux/rootfs/usr/share/morfo/greeter/morfo-greeter.py linux/branding/gerar.py
+        run: python3 -m py_compile linux/rootfs/usr/share/morfo/greeter/morfo-greeter.py linux/rootfs/usr/share/morfo/rede/morfo-rede.py linux/branding/gerar.py
 
   iso:
     name: Gerar ISO

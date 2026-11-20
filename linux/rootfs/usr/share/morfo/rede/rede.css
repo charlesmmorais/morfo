@@ -1,0 +1,55 @@
+/* Morfo Linux — Rede. Complementa base.css e as cores do tema. */
+
+.titulo {
+  font-size: 26px;
+  font-weight: 600;
+  color: @texto;
+}
+
+.estado {
+  color: @suave;
+  font-size: 14px;
+}
+
+list.redes {
+  background: transparent;
+}
+
+list.redes > row {
+  background: transparent;
+  padding: 0;
+  margin-bottom: 8px;
+}
+
+.rede {
+  background: alpha(@campo, 0.7);
+  border: 1px solid alpha(@borda, 0.8);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+
+.rede.ativa {
+  border-color: @destaque;
+  box-shadow: inset 0 0 0 1px alpha(@destaque, 0.5);
+}
+
+.sinal {
+  font-family: monospace;
+  font-size: 15px;
+  color: @destaque;
+  letter-spacing: 1px;
+}
+
+.ssid {
+  font-size: 16px;
+  color: @texto;
+}
+
+.info {
+  font-size: 13px;
+  color: @suave;
+}
+
+.erro.ok {
+  color: @suave;
+}

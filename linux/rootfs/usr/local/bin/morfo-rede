@@ -1,7 +1,3 @@
 #!/bin/sh
-# Morfo Linux — configurar Wi-Fi e rede (nmtui) e voltar para o login.
-exec cage -d -s -- foot --title "Rede" sh -c '
-printf "\n  Morfo Linux · Rede\n\n  Use as setas e Enter. Ao terminar, escolha \"Sair\".\n\n"
-sleep 1
-nmtui
-'
+# Morfo Linux — tela de rede (Wi-Fi). "Voltar ao login" encerra a sessão.
+exec cage -d -s -- python3 /usr/share/morfo/rede/morfo-rede.py

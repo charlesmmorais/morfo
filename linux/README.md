@@ -37,6 +37,8 @@ menus ou janelas para gerenciar. Ao fechar o Claude, você volta para a tela de 
 | **Boot** | <img src="docs/img/boot-grafite.png" width="360"> | <img src="docs/img/boot-areia.png" width="360"> |
 | **Login** | <img src="docs/img/login-grafite.png" width="360"> | <img src="docs/img/login-areia.png" width="360"> |
 
+<p align="center"><img src="docs/img/rede-grafite.png" width="49%" alt="Tela de rede, tema Grafite"> <img src="docs/img/rede-areia.png" width="49%" alt="Tela de rede, tema Areia"><br><sub>Tela de rede: Wi-Fi com senha, sem sair do visual do Morfo</sub></p>
+
 <p align="center"><img src="docs/img/menu-instalador.png" width="480" alt="Menu de boot do instalador"><br><sub>Menu de boot do instalador</sub></p>
 
 > As telas acima são capturas reais da tela de login, do Plymouth e do GRUB, geradas pelos
@@ -103,6 +105,7 @@ linux/
     ├── usr/local/sbin/      morfo-tema
     └── usr/share/morfo/
         ├── greeter/         tela de login em GTK4 (Python) + CSS dos temas
+        ├── rede/            tela de Wi-Fi em GTK4 (NetworkManager)
         └── boot/            animação do Plymouth e tema do GRUB
 ```
 
