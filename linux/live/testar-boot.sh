@@ -41,11 +41,14 @@ foto() {
 import base64, io, sys
 from PIL import Image
 im = Image.open(sys.argv[1]).convert("RGB")
-im.thumbnail((800, 600))
-b = io.BytesIO(); im.save(b, "PNG", optimize=True)
+im.thumbnail((720, 540))
+b = io.BytesIO(); im.save(b, "JPEG", quality=70)
+dados = base64.b64encode(b.getvalue()).decode()
 print(f"=====FOTO {sys.argv[2]} {im.size[0]}x{im.size[1]}=====")
-print(base64.b64encode(b.getvalue()).decode())
-print("=====FIM=====")
+# Linhas curtas: o log do GitHub descarta linhas muito longas.
+for i in range(0, len(dados), 900):
+    print("F|" + dados[i:i + 900])
+print("=====FIM=====", flush=True)
 PY
 }
 

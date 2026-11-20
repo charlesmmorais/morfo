@@ -71,12 +71,10 @@ ImageDir=$P
 ScriptFile=$P/morfo.script
 EOF
 if command -v plymouthd >/dev/null; then
-    if command -v plymouth-set-default-theme >/dev/null; then
-        plymouth-set-default-theme morfo
-    else
-        mkdir -p /etc/plymouth
-        printf '[Daemon]\nTheme=morfo\n' > /etc/plymouth/plymouthd.conf
-    fi
+    plymouth-set-default-theme morfo 2>/dev/null || true
+    # Garante a escolha mesmo quando o comando acima não grava o arquivo.
+    mkdir -p /etc/plymouth
+    printf '[Daemon]\nTheme=morfo\nShowDelay=0\n' > /etc/plymouth/plymouthd.conf
     update-initramfs -u >/dev/null 2>&1 || echo "Aviso: update-initramfs falhou" >&2
 fi
 

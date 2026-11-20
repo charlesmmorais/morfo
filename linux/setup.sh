@@ -124,7 +124,7 @@ say "2/9 Base: login, quiosque, rede, som, fontes, boot gráfico"
     gnome-keyring libpam-gnome-keyring libsecret-1-0 dbus-user-session \
     network-manager \
     pipewire pipewire-pulse pipewire-alsa wireplumber alsa-utils \
-    plymouth grub-common \
+    plymouth plymouth-themes grub-common \
     intel-microcode firmware-misc-nonfree firmware-amd-graphics
 
 # -----------------------------------------------------------------------------
