@@ -88,8 +88,8 @@ class BoasVindas(Gtk.ApplicationWindow):
         # Topo
         topo = Gtk.Box(spacing=12)
         topo.add_css_class("topo")
-        self.marca = Gtk.Picture(can_shrink=True)
-        self.marca.set_size_request(30, 30)
+        # Gtk.Image com tamanho fixo: o Gtk.Picture cresce até o tamanho do arquivo.
+        self.marca = Gtk.Image(pixel_size=30, valign=Gtk.Align.CENTER)
         nome = Gtk.Label(label="morfo")
         nome.add_css_class("nome")
         topo.append(self.marca)
@@ -98,6 +98,7 @@ class BoasVindas(Gtk.ApplicationWindow):
         for rotulo, acao in (("Reiniciar", "reboot"), ("Desligar", "poweroff")):
             b = Gtk.Button(label=rotulo)
             b.add_css_class("energia")
+            b.set_valign(Gtk.Align.CENTER)
             b.connect("clicked", self.energia, acao)
             topo.append(b)
         raiz.append(topo)
@@ -177,7 +178,7 @@ class BoasVindas(Gtk.ApplicationWindow):
         self.css.load_from_string(css)
         pasta = SHARE / "temas" / self.tema
         self.fundo.set_filename(str(pasta / "fundo.jpg"))
-        self.marca.set_filename(str(pasta / "logo-128.png"))
+        self.marca.set_from_file(str(pasta / "logo-128.png"))
         outro = TEMAS[(TEMAS.index(self.tema) + 1) % 2]
         self.botao_tema.set_label(f"Tema {NOME[self.tema]}  ·  mudar para {NOME[outro]}")
 

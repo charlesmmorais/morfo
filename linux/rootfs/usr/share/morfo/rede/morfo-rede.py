@@ -149,9 +149,10 @@ class Rede(Gtk.ApplicationWindow):
 
         topo = Gtk.Box(spacing=12)
         topo.add_css_class("topo")
-        marca = Gtk.Picture.new_for_filename(str(SHARE / "temas" / tema / "logo-128.png"))
-        marca.set_size_request(30, 30)
-        marca.set_can_shrink(True)
+        # Gtk.Image com tamanho fixo: o Gtk.Picture cresce até o tamanho do arquivo.
+        marca = Gtk.Image.new_from_file(str(SHARE / "temas" / tema / "logo-128.png"))
+        marca.set_pixel_size(30)
+        marca.set_valign(Gtk.Align.CENTER)
         nome = Gtk.Label(label="morfo")
         nome.add_css_class("nome")
         topo.append(marca)
@@ -159,6 +160,7 @@ class Rede(Gtk.ApplicationWindow):
         topo.append(Gtk.Box(hexpand=True))
         sair = Gtk.Button(label="Voltar ao login")
         sair.add_css_class("energia")
+        sair.set_valign(Gtk.Align.CENTER)
         sair.connect("clicked", lambda *_: app.quit())
         topo.append(sair)
         raiz.append(topo)

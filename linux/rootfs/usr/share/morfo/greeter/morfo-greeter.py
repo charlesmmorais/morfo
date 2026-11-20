@@ -141,8 +141,8 @@ class Greeter(Gtk.ApplicationWindow):
         # Topo: marca à esquerda, botões de energia à direita.
         topo = Gtk.Box(spacing=12)
         topo.add_css_class("topo")
-        self.marca = Gtk.Picture(can_shrink=True)
-        self.marca.set_size_request(30, 30)
+        # Gtk.Image com tamanho fixo: o Gtk.Picture cresce até o tamanho do arquivo.
+        self.marca = Gtk.Image(pixel_size=30, valign=Gtk.Align.CENTER)
         self.marca.add_css_class("marca")
         nome = Gtk.Label(label="morfo")
         nome.add_css_class("nome")
@@ -153,6 +153,7 @@ class Greeter(Gtk.ApplicationWindow):
         for rotulo, acao in (("Reiniciar", "reboot"), ("Desligar", "poweroff")):
             b = Gtk.Button(label=rotulo)
             b.add_css_class("energia")
+            b.set_valign(Gtk.Align.CENTER)
             b.connect("clicked", self.energia, acao)
             topo.append(b)
         raiz.append(topo)
@@ -229,7 +230,7 @@ class Greeter(Gtk.ApplicationWindow):
         self.css.load_from_string(css)
         pasta = SHARE / "temas" / tema
         self.fundo.set_file(Gio.File.new_for_path(str(pasta / "fundo.jpg")))
-        self.marca.set_file(Gio.File.new_for_path(str(pasta / "logo-128.png")))
+        self.marca.set_from_file(str(pasta / "logo-128.png"))
         outro = TEMAS[(TEMAS.index(tema) + 1) % len(TEMAS)]
         self.botao_tema.set_label(f"Tema {NOME_TEMA[tema]}  ·  mudar para {NOME_TEMA[outro]}")
 
