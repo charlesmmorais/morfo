@@ -46,6 +46,24 @@ for f in /etc/apt/sources.list.d/*.sources; do
     [ -f "$f" ] && grep -q '^Components:' "$f" && \
         sed -i -E 's/^Components:.*/Components: main contrib non-free non-free-firmware/' "$f"
 done
+# Instalação feita sem internet: o apt só conhece o pendrive. Usa o espelho oficial.
+[ -f /etc/apt/sources.list ] && sed -i -E 's/^(deb cdrom:)/# \1/' /etc/apt/sources.list
+if ! grep -rhsE '^(deb |URIs:)' /etc/apt/sources.list /etc/apt/sources.list.d/ | grep -q 'debian'; then
+    CODINOME="${VERSION_CODENAME:-trixie}"
+    cat > /etc/apt/sources.list.d/debian.sources <<EOF
+Types: deb
+URIs: http://deb.debian.org/debian
+Suites: $CODINOME $CODINOME-updates
+Components: main contrib non-free non-free-firmware
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+
+Types: deb
+URIs: http://security.debian.org/debian-security
+Suites: $CODINOME-security
+Components: main contrib non-free non-free-firmware
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+EOF
+fi
 apt-get update
 
 # -----------------------------------------------------------------------------
@@ -59,7 +77,7 @@ say "2/9 Base: login, quiosque, rede, fontes, boot gráfico"
     gnome-keyring libpam-gnome-keyring libsecret-1-0 dbus-user-session \
     network-manager \
     plymouth grub-common \
-    intel-microcode firmware-misc-nonfree firmware-amd-graphics firmware-linux-free
+    intel-microcode firmware-misc-nonfree firmware-amd-graphics
 
 # -----------------------------------------------------------------------------
 say "3/9 Wi-Fi Broadcom (Mac mini e outros Macs antigos)"
