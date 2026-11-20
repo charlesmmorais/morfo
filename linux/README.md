@@ -58,7 +58,7 @@ O resto é automático, inclusive o download do Claude Desktop.
 ### Já tem um Debian instalado?
 
 ```bash
-git clone https://github.com/SEU_USUARIO/morfo.git
+git clone https://github.com/charlesmmorais/morfo.git
 cd morfo/linux
 sudo ./setup.sh areia      # ou grafite
 sudo reboot
