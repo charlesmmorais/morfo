@@ -1,0 +1,58 @@
+#!/bin/bash
+# Morfo Linux — testa a ISO viva no QEMU (UEFI): confere o conteúdo da imagem
+# e tira fotos da tela durante o boot. As fotos saem no log em base64, entre
+# marcadores, para quem só tem acesso ao log conseguir vê-las.
+set -uo pipefail
+ISO="${1:?uso: testar-boot.sh <iso>}"
+T=$(mktemp -d)
+
+echo "== Conteúdo da imagem"
+mkdir -p "$T/iso" "$T/sq"
+sudo mount -o loop,ro "$ISO" "$T/iso"
+sudo mount -o loop,ro "$T/iso/live/filesystem.squashfs" "$T/sq"
+for f in /etc/greetd/config.toml /usr/local/bin/morfo-sessao-viva /usr/share/morfo/boasvindas/morfo-boasvindas.py \
+         /etc/calamares/settings.conf /usr/share/calamares/branding/morfo/show.qml /usr/bin/calamares \
+         /usr/share/plymouth/themes/morfo/morfo.script /usr/local/sbin/morfo-tema /opt/morfo/setup.sh \
+         /usr/bin/cage /usr/sbin/greetd /usr/bin/nmcli; do
+    if [ -e "$T/sq$f" ]; then echo "ok   $f"; else echo "FALTA $f"; fi
+done
+echo "kernel: $(ls "$T/sq/boot" | tr '\n' ' ')"
+echo "wl.ko (Wi-Fi Broadcom): $(find "$T/sq/lib/modules" -name 'wl.ko*' | head -1)"
+echo "plymouth: $(grep -h Theme "$T/sq/etc/plymouth/plymouthd.conf" 2>/dev/null)"
+echo "greetd:"; sed 's/^/    /' "$T/sq/etc/greetd/config.toml"
+du -sh "$T/iso/live/filesystem.squashfs"
+sudo umount "$T/sq" "$T/iso"
+
+echo "== Boot no QEMU"
+OVMF=/usr/share/OVMF/OVMF_CODE_4M.fd
+[ -f "$OVMF" ] || OVMF=/usr/share/ovmf/OVMF.fd
+ACEL=""
+[ -w /dev/kvm ] && ACEL="-enable-kvm -cpu host"
+# shellcheck disable=SC2086
+qemu-system-x86_64 -M q35 -m 4G -smp 2 $ACEL -display none -vga std \
+    -drive if=pflash,format=raw,readonly=on,file="$OVMF" \
+    -cdrom "$ISO" -monitor unix:"$T/mon",server,nowait -serial file:"$T/serial.log" &
+QEMU=$!
+
+foto() {
+    echo "screendump $T/$1.ppm" | socat - UNIX-CONNECT:"$T/mon" >/dev/null 2>&1
+    sleep 1
+    python3 - "$T/$1.ppm" "$1" <<'PY'
+import base64, io, sys
+from PIL import Image
+im = Image.open(sys.argv[1]).convert("RGB")
+im.thumbnail((800, 600))
+b = io.BytesIO(); im.save(b, "PNG", optimize=True)
+print(f"=====FOTO {sys.argv[2]} {im.size[0]}x{im.size[1]}=====")
+print(base64.b64encode(b.getvalue()).decode())
+print("=====FIM=====")
+PY
+}
+
+sleep 20; foto 1-grub
+sleep 40; foto 2-boot
+sleep 60; foto 3-sessao
+sleep 60; foto 4-sessao
+kill "$QEMU" 2>/dev/null
+echo "== Fim do serial"; tail -5 "$T/serial.log" 2>/dev/null
+exit 0

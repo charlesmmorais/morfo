@@ -33,6 +33,13 @@ jobs:
           docker run --rm --privileged -v "$PWD:/repo" -e MORFO_VERSAO \
             debian:trixie bash /repo/linux/live/build-live.sh
 
+      - name: Testar o boot (QEMU, UEFI)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq qemu-system-x86 ovmf socat python3-pil >/dev/null
+          sudo chmod 666 /dev/kvm 2>/dev/null || true
+          bash linux/live/testar-boot.sh linux/dist/morfo-linux-live-*.iso
+
       - name: Log do build
         if: always()
         uses: actions/upload-artifact@v4
