@@ -71,6 +71,7 @@ sudo reboot
 | Trocar o tema | Botão **Tema** na tela de login (vale também para o boot) |
 | Conectar no Wi-Fi | Na tela de login, escolha **Configurar Wi-Fi** e entre |
 | Abrir um terminal | Escolha **Terminal**, ou `Ctrl+Alt+F2` |
+| Ajustar a saída de som | No Terminal: `wpctl status` e `wpctl set-default <número>` |
 | Atualizar tudo | `sudo apt update && sudo apt upgrade` |
 | Trocar o tema pelo terminal | `sudo morfo-tema grafite` ou `sudo morfo-tema areia` |
 
@@ -78,7 +79,8 @@ sudo reboot
 
 - PC ou Mac **x86-64**, com **4 GB** de RAM (8 GB recomendados para o Cowork)
 - **SSD** recomendado
-- Internet durante a instalação (cabo de rede: o Wi-Fi dos Macs só funciona depois)
+- Internet durante a instalação: cabo de rede ou celular Android em ancoragem USB
+  (o Wi-Fi dos Macs só funciona depois de instalado)
 - Virtualização (VT-x/AMD-V) ligada, para o Cowork
 - Uma conta Claude (Free, Pro, Max, Team ou Enterprise)
 

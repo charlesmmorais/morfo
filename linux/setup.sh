@@ -143,7 +143,9 @@ fi
 systemctl enable greetd.service
 systemctl enable morfo-tema.path
 systemctl set-default graphical.target
-# O console tty1 continua existindo (Ctrl+Alt+F1) para manutenção.
+# A tela de login ocupa o terminal 1, logo depois da animação de boot.
+# Um console de texto continua em Ctrl+Alt+F2, para manutenção.
+systemctl disable getty@tty1.service 2>/dev/null || true
 
 # -----------------------------------------------------------------------------
 say "7/9 Cowork: virtualização"

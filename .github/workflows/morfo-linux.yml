@@ -64,7 +64,9 @@ jobs:
 
             1. Grave a ISO num pendrive (balenaEtcher, ou `dd`).
             2. No Mac, ligue segurando **Option** e escolha "EFI Boot".
-            3. Escolha o tema, siga o instalador **com cabo de rede** e reinicie.
+            3. Escolha o tema e siga o instalador **com internet** (cabo de rede ou celular Android em ancoragem USB).
+
+            Novidades: som (PipeWire), login gráfico direto no boot, setup que se recupera de instalação sem internet e o APK do Morfo para Android (Galaxy S25+).
 
             O Claude Desktop não vem na ISO: é instalado do repositório oficial da Anthropic durante a instalação.
             Confira o download com o arquivo `.sha256`.
