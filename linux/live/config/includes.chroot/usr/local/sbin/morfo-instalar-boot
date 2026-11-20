@@ -1,0 +1,27 @@
+#!/bin/bash
+# Morfo Linux — instala o GRUB no sistema novo (dentro do chroot do Calamares).
+# Substitui o módulo "bootloader" do Calamares, que grava uma entrada na NVRAM
+# do firmware: os Macs antigos recusam isso e a instalação falhava.
+set -u
+exec >>/var/log/morfo-pos-instalacao.log 2>&1
+echo "== Morfo: carregador de boot $(date -Is)"
+
+if [ -d /sys/firmware/efi ] && mountpoint -q /boot/efi; then
+    echo "grub-efi-amd64 grub2/force_efi_extra_removable boolean true" | debconf-set-selections
+    # 1. Caminho "removível" (EFI/BOOT/BOOTX64.EFI): é o que os Macs procuram,
+    #    e funciona em qualquer PC UEFI. Sem tocar na NVRAM.
+    grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=morfo \
+        --removable --no-nvram --recheck || exit 1
+    # 2. Em PCs, também cria a entrada "morfo" no menu do firmware. Se o
+    #    firmware recusar (Macs), não faz mal: o passo 1 já basta.
+    grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=morfo \
+        || echo "Aviso: o firmware não aceitou a entrada na NVRAM (normal em Macs)."
+else
+    # BIOS: instala no disco que contém a raiz.
+    RAIZ=$(findmnt -no SOURCE /)
+    DISCO=$(lsblk -no PKNAME "$RAIZ" | head -1)
+    grub-install --target=i386-pc "/dev/$DISCO" || exit 1
+fi
+
+update-grub || exit 1
+echo "== Morfo: carregador de boot instalado"
