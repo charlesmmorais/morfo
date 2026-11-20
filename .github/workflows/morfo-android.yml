@@ -1,0 +1,68 @@
+name: Morfo Android
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+    paths: ["android/**", ".github/workflows/morfo-android.yml"]
+  pull_request:
+    paths: ["android/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    name: Gerar APK
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.11.1"
+
+      - name: Chave de assinatura (opcional)
+        env:
+          KEYSTORE_B64: ${{ secrets.MORFO_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/morfo.keystore"
+            echo "MORFO_KEYSTORE=$RUNNER_TEMP/morfo.keystore" >> "$GITHUB_ENV"
+          else
+            echo "Sem MORFO_KEYSTORE_B64: o APK sai com a chave de depuração."
+          fi
+
+      - name: Compilar
+        env:
+          MORFO_KEYSTORE_PASSWORD: ${{ secrets.MORFO_KEYSTORE_PASSWORD }}
+          MORFO_KEY_ALIAS: ${{ secrets.MORFO_KEY_ALIAS }}
+          MORFO_KEY_PASSWORD: ${{ secrets.MORFO_KEY_PASSWORD }}
+          MORFO_VERSION_NAME: ${{ github.ref_type == 'tag' && github.ref_name || '0.1.0-dev' }}
+          MORFO_VERSION_CODE: ${{ github.run_number }}
+        run: |
+          gradle -p android assembleRelease --no-daemon --stacktrace
+          mkdir -p dist
+          VERSAO="${MORFO_VERSION_NAME#v}"
+          cp android/app/build/outputs/apk/release/app-release.apk "dist/morfo-android-$VERSAO.apk"
+          (cd dist && sha256sum *.apk > "morfo-android-$VERSAO.apk.sha256")
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: morfo-android-apk
+          path: dist/*
+          retention-days: 14
+
+      - name: Publicar na release
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*

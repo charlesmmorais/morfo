@@ -13,6 +13,7 @@ você dentro de limites que o sistema garante.
 | | O que é | Estado |
 |---|---|---|
 | **[Morfo Linux](linux/)** | Debian mínimo que liga direto no Claude Desktop, em tela cheia, com dois temas | **Usável hoje** · ISO nas [Releases](../../releases) |
+| **[Morfo para Android](android/)** | No Galaxy S25+, ao conectar o HDMI, abre a área de trabalho Morfo com o Claude | Novo · APK nas Releases |
 | **[Kernel Morfo](kernel/)** | Sistema operacional escrito do zero em Rust, com shell de chat e agente | Experimental · fases 1 e 2 |
 
 <p align="center">

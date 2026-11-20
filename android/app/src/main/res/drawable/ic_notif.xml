@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A marca do Morfo (folha com o ponto do cursor), em uma cor, para a barra de notificações. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="256"
+    android:viewportHeight="256">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M128,16 H204 A36,36 0 0 1 240,52 V128 A112,112 0 0 1 128,240 H52 A36,36 0 0 1 16,204 V128 A112,112 0 0 1 128,16 Z M164,142 A22,22 0 1 0 164,186 A22,22 0 1 0 164,142 Z" />
+</vector>
