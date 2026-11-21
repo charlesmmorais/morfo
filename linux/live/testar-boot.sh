@@ -67,7 +67,10 @@ done
 sleep 1; foto 1-grub; tecla ret
 sleep 50; foto 2-boot
 sleep 60; foto 3-sessao
-sleep 60; foto 4-sessao
+sleep 55
+# Leva o mouse até a borda de cima: a barra do Morfo deve aparecer.
+for _ in 1 2 3 4 5; do echo "mouse_move 0 -400" | socat - UNIX-CONNECT:"$T/mon" >/dev/null 2>&1; sleep 0.2; done
+sleep 2; foto 4-barra
 kill "$QEMU" 2>/dev/null
 echo "== Fim do serial"; tail -5 "$T/serial.log" 2>/dev/null
 exit 0
