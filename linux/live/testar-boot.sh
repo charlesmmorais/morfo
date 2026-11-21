@@ -52,8 +52,8 @@ print("=====FIM=====", flush=True)
 PY
 }
 
-sleep 20; foto 1-grub
-sleep 40; foto 2-boot
+sleep 9; foto 1-grub
+sleep 50; foto 2-boot
 sleep 60; foto 3-sessao
 sleep 60; foto 4-sessao
 kill "$QEMU" 2>/dev/null

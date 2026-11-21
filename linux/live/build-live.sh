@@ -23,7 +23,7 @@ say() { printf '\n\033[1;34m==> %s\033[0m\n' "$*"; }
 say "1/4 Ferramentas"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
-apt-get install -y -qq live-build debootstrap squashfs-tools xorriso >/dev/null
+apt-get install -y -qq live-build debootstrap squashfs-tools xorriso grub-common fonts-inter fontconfig >/dev/null
 
 say "2/4 Configuração do live-build"
 rm -rf "$W" && mkdir -p "$W" && cd "$W"
@@ -54,37 +54,69 @@ cp -r "$LINUX/setup.sh" "$LINUX/VERSAO" "$LINUX/rootfs" "$LINUX/offline" "$M/"
 cp -r "$LINUX/branding/out" "$M/branding/"
 chmod +x config/hooks/normal/*.hook.chroot
 
-# Menus de boot com a marca do Morfo e início automático (o padrão do
-# live-build espera para sempre no menu, com a marca do Debian).
+# Menu de boot do Morfo (UEFI e BIOS pelo GRUB). O padrão do live-build
+# mostra a marca do Debian e "Live system"; trocamos tudo pelo tema Areia.
 mkdir -p config/bootloaders
 for b in grub-pc isolinux; do
     [ -d "/usr/share/live/build/bootloaders/$b" ] && cp -r "/usr/share/live/build/bootloaders/$b" config/bootloaders/
 done
-echo "arquivos dos menus de boot:"; find config/bootloaders -type f | sort
-for f in config/bootloaders/grub-pc/grub.cfg config/bootloaders/grub-pc/config.cfg \
-         config/bootloaders/grub-pc/theme.cfg config/bootloaders/grub-pc/live-theme/theme.txt \
-         config/bootloaders/isolinux/isolinux.cfg; do
-    [ -f "$f" ] && { echo "----- $f"; cat "$f"; }
-done
-{ grep -rl "Live system" config/bootloaders 2>/dev/null || true; } | xargs -r sed -i 's/Live system/Morfo Linux/g'
-if [ -f config/bootloaders/grub-pc/splash.png ]; then
-    cp "$LINUX/live/splash-grub.png" config/bootloaders/grub-pc/splash.png
+G=config/bootloaders/grub-pc
+rm -f "$G"/install*.cfg "$G"/memtest.cfg
+cat > "$G/config.cfg" <<'CFG'
+# Morfo Linux — vídeo e tema do menu de boot.
+set default=0
+set timeout=5
+set timeout_style=menu
+insmod all_video
+insmod gfxterm
+insmod png
+insmod jpeg
+set gfxmode=auto
+set gfxpayload=keep
+CFG
+cat > "$G/theme.cfg" <<'CFG'
+loadfont $prefix/themes/morfo/morfo-14.pf2
+loadfont $prefix/themes/morfo/morfo-18.pf2
+terminal_output gfxterm
+set theme=$prefix/themes/morfo/theme.txt
+CFG
+cat > "$G/grub.cfg" <<'CFG'
+source /boot/grub/config.cfg
+source /boot/grub/theme.cfg
+
+menuentry "Iniciar o Morfo Linux" {
+    linux  @KERNEL_LIVE@ @APPEND_LIVE@
+    initrd @INITRD_LIVE@
+}
+
+menuentry "Iniciar em modo de compatibilidade de vídeo" {
+    linux  @KERNEL_LIVE@ @APPEND_LIVE@ nomodeset
+    initrd @INITRD_LIVE@
+}
+
+if [ "$grub_platform" = "efi" ]; then
+menuentry "Configurações do firmware" {
+    fwsetup
+}
 fi
-if [ -f config/bootloaders/isolinux/splash.png ]; then
-    cp "$LINUX/live/splash-isolinux.png" config/bootloaders/isolinux/splash.png
-fi
-# Fundo claro (Areia): texto do menu em tons escuros, sem o título do Debian.
-T=config/bootloaders/grub-pc/live-theme/theme.txt
-if [ -f "$T" ]; then
-    sed -i -e 's/"#ffffff"/"#2B2420"/g' -e 's/"#a8a8a8"/"#7D7066"/g' \
-        -e 's/^title-text: .*/title-text: ""/' -e 's/fg_color = "#2B2420"/fg_color = "#7A3F6E"/' \
-        -e 's/bg_color = "#7D7066"/bg_color = "#E2D6C6"/' -e 's/text_color = "#000000"/text_color = "#FFFFFF"/' "$T"
-fi
-if [ -f config/bootloaders/grub-pc/config.cfg ]; then
-    printf '\nset timeout=4\nset timeout_style=menu\n' >> config/bootloaders/grub-pc/config.cfg
-fi
+CFG
+# Arquivos do tema dentro da ISO, em /boot/grub/themes/morfo.
+T=config/includes.binary/boot/grub/themes/morfo
+mkdir -p "$T"
+cp "$LINUX/branding/out/areia/grub.jpg" "$LINUX/branding/out/areia"/select_*.png "$T/"
+sed -e 's/@TEXTO@/#2B2420/g' -e 's/@SUAVE@/#7D7066/g' \
+    "$LINUX/rootfs/usr/share/morfo/boot/grub-theme.txt" > "$T/theme.txt"
+FONTE=$(fc-match -f '%{file}' 'Inter:style=Regular')
+for s in 14 18; do grub-mkfont -n "Morfo" -s "$s" -o "$T/morfo-$s.pf2" "$FONTE"; done
+# Fundo também como splash.png: o live-build não gera a tela do Debian.
+cp "$LINUX/live/splash-grub.png" config/bootloaders/splash.png
+cp "$LINUX/live/splash-grub.png" "$G/splash.png"
+echo "menu de boot:"; find "$G" "$T" -type f | sort
+
+# BIOS antigo (isolinux): só fundo e textos.
+{ grep -rl "Live system" config/bootloaders/isolinux 2>/dev/null || true; } | xargs -r sed -i 's/Live system/Morfo Linux/g'
+[ -f config/bootloaders/isolinux/splash.png ] && cp "$LINUX/live/splash-isolinux.png" config/bootloaders/isolinux/splash.png
 find config/bootloaders/isolinux -name '*.cfg' -exec sed -i -E 's/^timeout .*/timeout 40/I' {} + 2>/dev/null || true
-grep -rn "timeout" config/bootloaders 2>/dev/null | head || true
 
 say "3/4 Montando a imagem (demora)"
 lb build 2>&1 | tee build.log | grep -E '^(P:|E:|W: )' || true
