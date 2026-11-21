@@ -280,7 +280,10 @@ def main() -> None:
 
     def ativar(a):
         j = BoasVindas(a)
-        j.fullscreen()
+        # No sway o próprio quiosque já ocupa a tela; tela cheia de verdade
+        # esconderia as janelas novas (Central, instalador).
+        if not os.environ.get("SWAYSOCK"):
+            j.fullscreen()
         j.present()
 
     app.connect("activate", ativar)
