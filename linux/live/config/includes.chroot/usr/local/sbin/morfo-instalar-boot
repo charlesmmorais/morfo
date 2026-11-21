@@ -3,7 +3,8 @@
 # Substitui o módulo "bootloader" do Calamares, que grava uma entrada na NVRAM
 # do firmware: os Macs antigos recusam isso e a instalação falhava.
 set -u
-exec >>/var/log/morfo-pos-instalacao.log 2>&1
+# Log no sistema novo e também na tela de erro do Calamares.
+exec > >(tee -a /var/log/morfo-pos-instalacao.log) 2>&1
 echo "== Morfo: carregador de boot $(date -Is)"
 
 if [ -d /sys/firmware/efi ] && mountpoint -q /boot/efi; then
