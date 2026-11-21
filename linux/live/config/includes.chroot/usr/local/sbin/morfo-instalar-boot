@@ -1,28 +1,60 @@
 #!/bin/bash
-# Morfo Linux — instala o GRUB no sistema novo (dentro do chroot do Calamares).
+# Morfo Linux — instala o GRUB no sistema novo.
+#   morfo-instalar-boot <raiz do sistema novo>
+# Roda no pendrive (fora do chroot): o Calamares não monta /proc, /sys e /dev
+# dentro do sistema novo, e sem eles o grub-install não acha o disco nem
+# percebe que a máquina é EFI. Aqui montamos tudo e só então entramos.
 # Substitui o módulo "bootloader" do Calamares, que grava uma entrada na NVRAM
 # do firmware: os Macs antigos recusam isso e a instalação falhava.
 set -u
+RAIZ="${1:?uso: morfo-instalar-boot <raiz do sistema novo>}"
+LOG="$RAIZ/var/log/morfo-pos-instalacao.log"
 # Log no sistema novo e também na tela de erro do Calamares.
-exec > >(tee -a /var/log/morfo-pos-instalacao.log) 2>&1
+exec > >(tee -a "$LOG") 2>&1
 echo "== Morfo: carregador de boot $(date -Is)"
 
-if [ -d /sys/firmware/efi ] && mountpoint -q /boot/efi; then
-    echo "grub-efi-amd64 grub2/force_efi_extra_removable boolean true" | debconf-set-selections
-    # 1. Caminho "removível" (EFI/BOOT/BOOTX64.EFI): é o que os Macs procuram,
-    #    e funciona em qualquer PC UEFI. Sem tocar na NVRAM.
-    grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=morfo \
-        --removable --no-nvram --recheck || exit 1
-    # 2. Em PCs, também cria a entrada "morfo" no menu do firmware. Se o
-    #    firmware recusar (Macs), não faz mal: o passo 1 já basta.
-    grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=morfo \
-        || echo "Aviso: o firmware não aceitou a entrada na NVRAM (normal em Macs)."
-else
-    # BIOS: instala no disco que contém a raiz.
-    RAIZ=$(findmnt -no SOURCE /)
-    DISCO=$(lsblk -no PKNAME "$RAIZ" | head -1)
-    grub-install --target=i386-pc "/dev/$DISCO" || exit 1
+MONTADOS=()
+montar() { # montar <origem> <destino dentro da raiz> [opções do mount...]
+    local destino="$RAIZ$2"
+    mountpoint -q "$destino" && return 0
+    mkdir -p "$destino"
+    mount "${@:3}" "$1" "$destino" && MONTADOS=("$destino" "${MONTADOS[@]}")
+}
+desmontar() { for m in "${MONTADOS[@]}"; do umount -l "$m" 2>/dev/null; done; }
+trap desmontar EXIT
+
+montar /dev /dev --bind
+montar /dev/pts /dev/pts --bind
+montar proc /proc -t proc
+montar sys /sys -t sysfs
+montar /run /run --bind
+if [ -d /sys/firmware/efi ]; then
+    montar efivarfs /sys/firmware/efi/efivars -t efivarfs
 fi
 
-update-grub || exit 1
+if [ -d /sys/firmware/efi ]; then
+    if ! mountpoint -q "$RAIZ/boot/efi"; then
+        echo "Erro: a partição EFI não está montada em /boot/efi do sistema novo."
+        exit 1
+    fi
+    echo "Máquina EFI: GRUB no caminho removível (EFI/BOOT/BOOTX64.EFI)."
+    chroot "$RAIZ" /bin/bash -c '
+        echo "grub-efi-amd64 grub2/force_efi_extra_removable boolean true" | debconf-set-selections
+        # 1. Caminho "removível": é o que os Macs procuram, e funciona em
+        #    qualquer PC UEFI. Sem tocar na NVRAM.
+        grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=morfo \
+            --removable --no-nvram --recheck || exit 1
+        # 2. Em PCs, também cria a entrada "morfo" no menu do firmware. Se o
+        #    firmware recusar (Macs), não faz mal: o passo 1 já basta.
+        grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=morfo \
+            || echo "Aviso: o firmware não aceitou a entrada na NVRAM (normal em Macs)."
+    ' || exit 1
+else
+    ORIGEM=$(findmnt -no SOURCE "$RAIZ")
+    DISCO=$(lsblk -no PKNAME "$ORIGEM" | head -1)
+    echo "Máquina BIOS: GRUB no disco /dev/$DISCO."
+    chroot "$RAIZ" grub-install --target=i386-pc "/dev/$DISCO" || exit 1
+fi
+
+chroot "$RAIZ" update-grub || exit 1
 echo "== Morfo: carregador de boot instalado"
