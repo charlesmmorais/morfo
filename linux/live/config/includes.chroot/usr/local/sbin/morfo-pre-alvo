@@ -25,4 +25,14 @@ if ! ls "$ALVO"/boot/vmlinuz-* >/dev/null 2>&1; then
         cp "$f" "$ALVO/boot/vmlinuz-$versao"
     done
 fi
+# O chroot do Calamares não traz /proc, /sys nem /dev: sem eles o apt, o
+# update-initramfs e o GRUB trabalham às cegas. Monta tudo agora; o módulo
+# "umount" do Calamares desmonta o que estiver sob a raiz no final.
+monta() { mountpoint -q "$ALVO$2" || { mkdir -p "$ALVO$2"; mount "${@:3}" "$1" "$ALVO$2"; }; }
+monta /dev /dev --bind
+monta /dev/pts /dev/pts --bind
+monta proc /proc -t proc
+monta sys /sys -t sysfs
+monta /run /run --bind
+[ -d /sys/firmware/efi ] && monta efivarfs /sys/firmware/efi/efivars -t efivarfs
 exit 0
