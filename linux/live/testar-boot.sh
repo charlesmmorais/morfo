@@ -52,7 +52,19 @@ print("=====FIM=====", flush=True)
 PY
 }
 
-sleep 9; foto 1-grub
+tecla() { echo "sendkey $1" | socat - UNIX-CONNECT:"$T/mon" >/dev/null 2>&1; }
+brilho() {
+    echo "screendump $T/b.ppm" | socat - UNIX-CONNECT:"$T/mon" >/dev/null 2>&1
+    sleep 0.3
+    python3 -c 'import sys; from PIL import Image, ImageStat; print(int(ImageStat.Stat(Image.open(sys.argv[1]).convert("L")).mean[0]))' "$T/b.ppm" 2>/dev/null || echo 0
+}
+# Espera o menu do GRUB (fundo Areia, claro), para a contagem com uma seta,
+# fotografa e inicia com Enter.
+for _ in $(seq 1 40); do
+    [ "$(brilho)" -gt 120 ] && { tecla up; break; }
+    sleep 0.5
+done
+sleep 1; foto 1-grub; tecla ret
 sleep 50; foto 2-boot
 sleep 60; foto 3-sessao
 sleep 60; foto 4-sessao

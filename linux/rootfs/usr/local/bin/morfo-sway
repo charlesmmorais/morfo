@@ -4,6 +4,11 @@
 # Quando o app principal fecha, a sessão termina (volta para o login).
 . /usr/local/lib/morfo-teclado.sh
 
+# Vídeo Intel antigo (Sandy Bridge, o HD 3000 do Mac mini 2011): com o modo
+# "atomic" do KMS a tela congela, embora cliques e ponteiro funcionem.
+# O modo legado funciona em tudo; quem quiser o atomic define a variável.
+export WLR_DRM_NO_ATOMIC="${WLR_DRM_NO_ATOMIC:-1}"
+
 [ $# -gt 0 ] || { echo "uso: morfo-sway <comando>" >&2; exit 1; }
 
 DIR=$(mktemp -d "${XDG_RUNTIME_DIR:-/tmp}/morfo-sway.XXXXXX")
