@@ -16,6 +16,10 @@ APP="$DIR/app.sh"
 # Script do app principal, com cada argumento entre aspas simples.
 {
     echo '#!/bin/sh'
+    # Passa o Wayland da sessão aos serviços do usuário (portal do desktop).
+    # Sem isso o xdg-desktop-portal não sobe e o Claude (Electron) espera
+    # ~25 s pelo D-Bus antes de abrir.
+    echo 'dbus-update-activation-environment --systemd WAYLAND_DISPLAY DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP XDG_SESSION_TYPE 2>/dev/null'
     for a in "$@"; do printf "'%s' " "$(printf '%s' "$a" | sed "s/'/'\\\\''/g")"; done
     printf '\nswaymsg exit\n'
 } > "$APP"
