@@ -1,0 +1,105 @@
+/* Morfo Linux — barra do topo. As cores vêm de areia.css ou grafite.css. */
+
+window.barra-janela {
+  background: transparent;
+  font-family: "Inter", "Noto Sans", sans-serif;
+}
+
+.barra {
+  min-height: 34px;
+  padding: 0 10px;
+  background: alpha(@cartao, 0.92);
+  border-bottom: 1px solid alpha(@borda, 0.9);
+  color: @texto;
+  transition: opacity 150ms ease;
+}
+
+/* Escondida: só a faixa de 2 px fica na tela, sem desenho. */
+.barra.escondida {
+  opacity: 0;
+}
+
+.marca {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  color: @texto;
+}
+
+.hora {
+  font-size: 13px;
+  font-weight: 500;
+  color: @texto;
+  font-feature-settings: "tnum";
+}
+
+.item, menubutton.item > button {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 8px;
+  padding: 3px 9px;
+  min-height: 0;
+  color: @texto;
+}
+.item:hover, menubutton.item > button:hover, menubutton.item > button:checked {
+  background: alpha(@destaque, 0.12);
+}
+.item image { color: @texto; }
+
+.rotulo {
+  font-size: 12.5px;
+  color: @suave;
+}
+
+popover.painel > contents {
+  background: @cartao;
+  border: 1px solid alpha(@borda, 0.9);
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: 0 10px 30px alpha(@sombra, 0.18);
+  color: @texto;
+}
+
+.titulo-painel {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.opcao {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 8px;
+  padding: 7px 12px;
+  min-width: 190px;
+  color: @texto;
+  font-size: 13.5px;
+}
+.opcao:hover { background: alpha(@destaque, 0.12); }
+
+.link {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: @destaque;
+  font-size: 12.5px;
+  padding: 2px 0;
+}
+
+.redondo {
+  border-radius: 999px;
+  min-width: 30px;
+  min-height: 30px;
+  padding: 0;
+  background: alpha(@campo, 0.8);
+  border: 1px solid alpha(@borda, 0.9);
+  box-shadow: none;
+}
+.redondo:checked { background: alpha(@destaque, 0.16); }
+
+scale trough { background: alpha(@borda, 0.9); min-height: 6px; border-radius: 3px; }
+scale highlight { background-image: linear-gradient(90deg, @destaque-claro, @destaque); border-radius: 3px; }
+scale slider { background: @campo; border: 2px solid @destaque; min-width: 16px; min-height: 16px; border-radius: 999px; }
+
+separator { margin: 4px 6px; background: alpha(@borda, 0.9); }

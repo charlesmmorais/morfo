@@ -1,0 +1,7 @@
+#!/bin/sh
+# Morfo Linux — barra do topo (aberta pelo morfo-sway em cada sessão).
+# O gtk4-layer-shell precisa ser carregado antes da biblioteca do Wayland.
+for lib in /usr/lib/*/libgtk4-layer-shell.so.0 /usr/lib/libgtk4-layer-shell.so.0; do
+    [ -e "$lib" ] && { export LD_PRELOAD="$lib${LD_PRELOAD:+:$LD_PRELOAD}"; break; }
+done
+exec python3 /usr/share/morfo/barra/morfo-barra.py "$@"

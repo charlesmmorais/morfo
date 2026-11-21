@@ -119,7 +119,7 @@ say "2/9 Base: login, quiosque, rede, som, fontes, boot gráfico"
 "${APT[@]}" \
     curl gnupg ca-certificates \
     greetd cage sway xwayland foot \
-    python3 python3-gi gir1.2-gtk-4.0 \
+    python3 python3-gi gir1.2-gtk-4.0 gir1.2-gtk4layershell-1.0 \
     fonts-inter fonts-noto-core fonts-noto-color-emoji \
     gnome-keyring libpam-gnome-keyring libsecret-1-0 dbus-user-session \
     network-manager bluez \
@@ -186,6 +186,8 @@ echo "$TEMA" > /var/lib/morfo/tema
 chmod 0666 /var/lib/morfo/tema
 [ -f /var/lib/morfo/teclado ] || : > /var/lib/morfo/teclado
 chmod 0666 /var/lib/morfo/teclado
+[ -s /var/lib/morfo/barra ] || echo auto > /var/lib/morfo/barra
+chmod 0666 /var/lib/morfo/barra
 
 PAM=/etc/pam.d/greetd
 if [ -f "$PAM" ] && ! grep -q pam_gnome_keyring "$PAM"; then

@@ -33,6 +33,8 @@ chmod +x "$APP"
     [ -n "${XKB_DEFAULT_VARIANT:-}" ] && printf '    xkb_variant "%s"\n' "$XKB_DEFAULT_VARIANT"
     [ -n "${XKB_DEFAULT_OPTIONS:-}" ] && printf '    xkb_options "%s"\n' "$XKB_DEFAULT_OPTIONS"
     printf '}\n'
+    # Barra do topo (fixa ou escondida, conforme a Central).
+    [ -n "${MORFO_SEM_BARRA:-}" ] || printf '\nexec /usr/local/bin/morfo-barra\n'
     printf '\nexec %s\n' "$APP"
 } > "$DIR/config"
 

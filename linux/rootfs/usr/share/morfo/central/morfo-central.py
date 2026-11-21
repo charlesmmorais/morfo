@@ -359,7 +359,8 @@ class PaginaAparencia(Gtk.Box):
     def __init__(self, aviso, ao_mudar_tema):
         super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=16)
         self.aviso = aviso
-        self.append(titulo_pagina("Aparência", "Tema e teclado."))
+        self.ao_recarregar = lambda: ao_mudar_tema(None)
+        self.append(titulo_pagina("Aparência", "Tema, barra do topo e teclado."))
 
         rot = Gtk.Label(label="Tema", xalign=0)
         rot.add_css_class("ssid")
@@ -387,6 +388,21 @@ class PaginaAparencia(Gtk.Box):
         nota.add_css_class("info")
         self.append(nota)
 
+        rot_barra = Gtk.Label(label="Barra do topo", xalign=0)
+        rot_barra.add_css_class("ssid")
+        self.append(rot_barra)
+        try:
+            modo = (ESTADO / "barra").read_text().strip()
+        except OSError:
+            modo = "auto"
+        modo = modo if modo in ("auto", "fixa") else "auto"
+        for cod, nome, desc in (("auto", "Aparece ao encostar no topo", "Escondida; leve o mouse até a borda de cima"),
+                                ("fixa", "Sempre visível", "O Claude fica logo abaixo dela")):
+            linha, botoes = linha_item(nome, desc, cod == modo)
+            if cod != modo:
+                botoes.append(botao("Usar esta", "secundario", lambda c=cod: self.usar_barra(c)))
+            self.append(linha)
+
         rot2 = Gtk.Label(label="Teclado", xalign=0)
         rot2.add_css_class("ssid")
         self.append(rot2)
@@ -396,6 +412,12 @@ class PaginaAparencia(Gtk.Box):
             if cod != atual_tec:
                 botoes.append(botao("Usar este", "secundario", lambda c=cod, n=nome: self.usar_teclado(c, n)))
             self.append(linha)
+
+    def usar_barra(self, modo: str) -> None:
+        if not gravar("barra", modo):
+            self.aviso("Não consegui salvar a preferência da barra.")
+            return
+        self.ao_recarregar()
 
     def teclado_atual(self) -> str:
         try:
@@ -613,7 +635,11 @@ class Central(Gtk.ApplicationWindow):
         self.aviso_lbl.set_visible(bool(texto))
         (self.aviso_lbl.remove_css_class if erro else self.aviso_lbl.add_css_class)("ok")
 
-    def mudar_tema(self, tema: str) -> None:
+    def mudar_tema(self, tema) -> None:
+        if tema is None:  # só redesenha (outra preferência mudou)
+            self.montar()
+            self.aviso("Barra do topo atualizada.", False)
+            return
         if not gravar("tema", tema):
             self.aviso("Não consegui salvar o tema.")
             return
