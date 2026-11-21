@@ -89,7 +89,7 @@ menuentry "Iniciar o Morfo Linux" {
     initrd @INITRD_LIVE@
 }
 
-menuentry "Modo de compatibilidade de vídeo" {
+menuentry "Compatibilidade de vídeo" {
     linux  @KERNEL_LIVE@ @APPEND_LIVE@ nomodeset
     initrd @INITRD_LIVE@
 }

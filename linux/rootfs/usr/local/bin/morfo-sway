@@ -38,4 +38,14 @@ chmod +x "$APP"
     printf '\nexec %s\n' "$APP"
 } > "$DIR/config"
 
-exec sway --unsupported-gpu -c "$DIR/config"
+# Modo legado primeiro (veja acima). Se o sway nem conseguir abrir assim
+# (algumas placas, como a de vídeo virtual do QEMU), tenta o modo atomic.
+INICIO=$(date +%s)
+sway --unsupported-gpu -c "$DIR/config"
+COD=$?
+if [ "$COD" -ne 0 ] && [ $(( $(date +%s) - INICIO )) -lt 8 ] && [ "$WLR_DRM_NO_ATOMIC" = 1 ]; then
+    echo "morfo-sway: o sway não abriu no modo legado; tentando o atomic." >&2
+    export WLR_DRM_NO_ATOMIC=0
+    exec sway --unsupported-gpu -c "$DIR/config"
+fi
+exit "$COD"
